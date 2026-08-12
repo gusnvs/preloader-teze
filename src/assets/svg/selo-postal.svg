@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 156" role="img" aria-label="Selo postal Teze">
+  <defs>
+    <pattern id="sp-vichy" width="10" height="10" patternUnits="userSpaceOnUse">
+      <rect width="10" height="10" fill="#F7F1E4"/>
+      <rect width="5" height="10" fill="#A8202A" opacity=".58"/>
+      <rect width="10" height="5" fill="#A8202A" opacity=".58"/>
+    </pattern>
+
+    <path id="sp-pata"
+          d="M20 34 C20 26 26 20 35 20 C42 20 47 25 48 32 C49 39 46 44 43 48
+             C41 53 41 57 44 60 C56 58 70 62 78 70 C87 79 84 92 70 96
+             C55 100 36 96 28 85 C21 75 21 65 28 57 C32 52 34 47 33 43
+             C26 43 22 39 20 34 Z"/>
+    <path id="sp-bico" d="M22 30 C13 27 5 29 3 33 C5 38 13 39 22 36 Z"/>
+    <clipPath id="sp-corpo"><use href="#sp-pata"/></clipPath>
+
+    <!-- Serrilha: circulos subtraidos ao longo das quatro bordas. -->
+    <mask id="sp-perf">
+      <rect width="132" height="156" fill="#fff"/>
+      <g fill="#000">
+        <circle cx="6" cy="6" r="4"/><circle cx="21" cy="6" r="4"/><circle cx="36" cy="6" r="4"/>
+        <circle cx="51" cy="6" r="4"/><circle cx="66" cy="6" r="4"/><circle cx="81" cy="6" r="4"/>
+        <circle cx="96" cy="6" r="4"/><circle cx="111" cy="6" r="4"/><circle cx="126" cy="6" r="4"/>
+        <circle cx="6" cy="150" r="4"/><circle cx="21" cy="150" r="4"/><circle cx="36" cy="150" r="4"/>
+        <circle cx="51" cy="150" r="4"/><circle cx="66" cy="150" r="4"/><circle cx="81" cy="150" r="4"/>
+        <circle cx="96" cy="150" r="4"/><circle cx="111" cy="150" r="4"/><circle cx="126" cy="150" r="4"/>
+        <circle cx="6" cy="21" r="4"/><circle cx="6" cy="36" r="4"/><circle cx="6" cy="51" r="4"/>
+        <circle cx="6" cy="66" r="4"/><circle cx="6" cy="81" r="4"/><circle cx="6" cy="96" r="4"/>
+        <circle cx="6" cy="111" r="4"/><circle cx="6" cy="126" r="4"/>
+        <circle cx="126" cy="21" r="4"/><circle cx="126" cy="36" r="4"/><circle cx="126" cy="51" r="4"/>
+        <circle cx="126" cy="66" r="4"/><circle cx="126" cy="81" r="4"/><circle cx="126" cy="96" r="4"/>
+        <circle cx="126" cy="111" r="4"/><circle cx="126" cy="126" r="4"/>
+      </g>
+    </mask>
+  </defs>
+
+  <g mask="url(#sp-perf)">
+    <rect x="2" y="2" width="128" height="152" fill="#F7F1E4"/>
+    <rect x="8" y="8" width="116" height="140" fill="none" stroke="#A8202A"
+          stroke-width="1.6" opacity=".7"/>
+
+    <text x="66" y="26" font-family="'Courier Prime', 'Courier New', monospace" font-size="7.4"
+          letter-spacing="3.4" text-anchor="middle" fill="#1B1B1B" opacity=".75">POSTES</text>
+
+    <g transform="translate(28 30) scale(0.78)">
+      <g clip-path="url(#sp-corpo)">
+        <rect width="110" height="110" fill="url(#sp-vichy)"/>
+      </g>
+      <use href="#sp-pata" fill="none" stroke="#A8202A" stroke-width="2.8" stroke-linejoin="round"/>
+      <use href="#sp-bico" fill="#E3B33F" stroke="#A8202A" stroke-width="2.4" stroke-linejoin="round"/>
+      <ellipse cx="36" cy="20" rx="24" ry="5.5" fill="#E3B33F" stroke="#A8202A" stroke-width="2.2"/>
+      <path d="M23 20 C24 12 30 8 37 8 C44 8 49 13 49 20 Z" fill="#E3B33F"
+            stroke="#A8202A" stroke-width="2.2" stroke-linejoin="round"/>
+      <circle cx="30" cy="29" r="2.6" fill="#A8202A"/>
+      <g stroke="#A8202A" stroke-width="2.8" stroke-linecap="round">
+        <path d="M46 97v12M62 95v14"/>
+        <path d="M40 109h12M56 109h12"/>
+      </g>
+    </g>
+
+    <text x="66" y="140" font-family="'Bodoni Moda', Didot, Georgia, serif" font-size="19"
+          font-style="italic" text-anchor="middle" fill="#A8202A">Tezê</text>
+  </g>
+</svg>

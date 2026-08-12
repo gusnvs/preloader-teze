@@ -1,0 +1,87 @@
+/* =========================================================================
+   BASE — reset enxuto + fundacoes do documento.
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--tz-paper-bright);
+  color: var(--tz-ink);
+  font-family: var(--tz-font-mono);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* O pre-loader cobre a tela inteira; nada deve gerar barra de rolagem
+     durante a transicao. */
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Alvo do roteador ------------------------------------------------------- */
+.app {
+  position: relative;
+  z-index: var(--tz-z-page);
+  min-height: 100svh;
+}
+
+/* Primeira visita: a pagina existe no DOM desde o inicio (para o roteador
+   e os leitores de tela), mas so se revela na cena 8. Evita o lampejo de
+   conteudo antes da colagem cobrir a tela. */
+body.is-booting .app {
+  opacity: 0;
+}
+
+/* Camada isolada do pre-loader ------------------------------------------- */
+.preloader-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--tz-z-preloader);
+  pointer-events: none;
+}
+
+/* Utilitario de acessibilidade ------------------------------------------- */
+.tz-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Foco visivel e coerente com a marca ------------------------------------ */
+:focus-visible {
+  outline: 2px solid var(--tz-red);
+  outline-offset: 4px;
+  border-radius: 2px;
+}

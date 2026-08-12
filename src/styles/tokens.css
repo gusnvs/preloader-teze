@@ -1,0 +1,77 @@
+/* =========================================================================
+   TOKENS — fonte unica de verdade da identidade Tezê.
+   Cores extraidas da identidade: vichy vermelho, papel algodao, tinta,
+   azul-tinta das fitas, dourado da palha.
+   ========================================================================= */
+
+:root {
+  /* ---- Paleta ---------------------------------------------------------- */
+  --tz-red: #a8202a;
+  --tz-red-deep: #7e141c;
+  --tz-red-soft: #c9505a;
+  --tz-paper: #f4eddf;
+  --tz-paper-warm: #eadfc9;
+  --tz-paper-bright: #fbf7ef;
+  --tz-ink: #1b1b1b;
+  --tz-ink-soft: #4a453e;
+  --tz-navy: #2a4b6b;
+  --tz-gold: #e3b33f;
+
+  /* ---- Sombras (colagem fisica) ---------------------------------------- */
+  --tz-shadow-near: 0 1px 2px rgba(52, 34, 24, 0.16);
+  --tz-shadow-lift: 0 10px 26px rgba(52, 34, 24, 0.2);
+  --tz-drop-paper: drop-shadow(0 2px 1px rgba(60, 40, 28, 0.18))
+    drop-shadow(0 8px 14px rgba(60, 40, 28, 0.12));
+  --tz-drop-paper-lift: drop-shadow(0 6px 4px rgba(60, 40, 28, 0.2))
+    drop-shadow(0 22px 30px rgba(60, 40, 28, 0.18));
+
+  /* ---- Tipografia ------------------------------------------------------ */
+  --tz-font-display: 'Bodoni Moda', 'Didot', 'Bodoni MT', Georgia, serif;
+  --tz-font-mono: 'Courier Prime', 'Courier New', ui-monospace, monospace;
+  --tz-font-hand: 'Nothing You Could Do', 'Segoe Script', cursive;
+
+  --tz-tracking-wide: 0.28em;
+  --tz-tracking-mid: 0.12em;
+
+  /* ---- Curvas em CSS ---------------------------------------------------
+     Equivalente aproximado da `tz.settle` do GSAP, para os poucos momentos
+     que valem uma transicao de CSS em vez de um tween (ver a revelacao da
+     pagina na cena 8). Manter as duas parecidas evita que a transicao mude
+     de carater no ultimo instante. */
+  --tz-ease-settle: cubic-bezier(0.12, 0.44, 0.38, 0.99);
+
+  /* ---- Ritmo espacial -------------------------------------------------- */
+  --tz-space-1: 0.5rem;
+  --tz-space-2: 1rem;
+  --tz-space-3: 1.75rem;
+  --tz-space-4: 3rem;
+  --tz-space-5: 5rem;
+
+  /* ---- Camadas --------------------------------------------------------- */
+  --tz-z-page: 1;
+  --tz-z-preloader: 100;
+  --tz-z-devtools: 1000;
+
+  /* ---- Unidade de composicao ------------------------------------------
+     Toda peca da colagem tem largura em multiplos desta unidade.
+     Escala junto com a viewport, mantendo a proporcao do mural. */
+  --tz-unit: 1vmin;
+}
+
+/* Em telas muito largas o vmin fica pequeno demais para o mural respirar:
+   ampliamos levemente a unidade para a colagem nao ficar minuscula. */
+@media (min-aspect-ratio: 16 / 10) and (min-width: 1400px) {
+  :root {
+    --tz-unit: 1.18vmin;
+  }
+}
+
+/* Retrato estreito: as pecas precisam crescer em relacao ao vmin para
+   continuarem legiveis, mas nao tanto que a colagem vire um amontoado.
+   Este valor e o unico controle de escala global da composicao vertical —
+   subir 0.1 aqui engorda as trinta pecas de uma vez. */
+@media (max-aspect-ratio: 3 / 4) {
+  :root {
+    --tz-unit: 1.04vmin;
+  }
+}

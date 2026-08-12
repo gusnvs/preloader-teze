@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 150" role="img" aria-label="Verso de cartao postal">
+  <rect width="230" height="150" fill="#F7F1E4"/>
+  <rect width="230" height="150" fill="none" stroke="#5A3A2A" stroke-width="1" opacity=".2"/>
+
+  <!-- Divisao classica do verso: mensagem a esquerda, endereco a direita. -->
+  <path d="M112 14v122" stroke="#5A3A2A" stroke-width=".9" opacity=".28"/>
+
+  <text x="16" y="26" font-family="'Courier Prime','Courier New',monospace" font-size="6.4"
+        letter-spacing="2.4" fill="#1B1B1B" opacity=".55">CARTE POSTALE</text>
+
+  <!-- Linhas manuscritas sugeridas, sem texto legivel. -->
+  <g stroke="#2A4B6B" stroke-width="1.5" stroke-linecap="round" opacity=".5" fill="none">
+    <path d="M16 46 C30 42 44 50 58 45 C72 41 84 48 96 44"/>
+    <path d="M16 62 C28 58 40 65 54 60 C68 56 78 63 92 59"/>
+    <path d="M16 78 C32 74 46 81 60 76 C74 72 86 79 98 75"/>
+    <path d="M16 94 C26 90 38 97 50 92"/>
+  </g>
+
+  <!-- Area do selo. -->
+  <rect x="176" y="14" width="40" height="46" fill="none" stroke="#5A3A2A"
+        stroke-width=".9" stroke-dasharray="3 3" opacity=".45"/>
+  <text x="196" y="34" font-family="'Courier Prime','Courier New',monospace" font-size="5.4"
+        letter-spacing="1.2" text-anchor="middle" fill="#5A3A2A" opacity=".5">SELO</text>
+  <text x="196" y="44" font-family="'Courier Prime','Courier New',monospace" font-size="5.4"
+        letter-spacing="1.2" text-anchor="middle" fill="#5A3A2A" opacity=".5">AQUI</text>
+
+  <!-- Pautas do endereco. -->
+  <g stroke="#5A3A2A" stroke-width=".9" opacity=".3">
+    <path d="M124 82h94M124 100h94M124 118h72"/>
+  </g>
+  <text x="124" y="76" font-family="'Courier Prime','Courier New',monospace" font-size="5.8"
+        letter-spacing="2" fill="#1B1B1B" opacity=".5">DESTINO</text>
+
+  <g transform="translate(150 126)" opacity=".8">
+    <text font-family="'Bodoni Moda',Didot,Georgia,serif" font-size="15" font-style="italic"
+          fill="#A8202A">Tezê</text>
+  </g>
+</svg>

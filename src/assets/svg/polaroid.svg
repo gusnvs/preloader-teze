@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 176" role="img" aria-label="Moldura de fotografia instantanea">
+  <defs>
+    <linearGradient id="pl-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D9DCCF"/>
+      <stop offset="52%" stop-color="#BFC9BE"/>
+      <stop offset="100%" stop-color="#8FA79E"/>
+    </linearGradient>
+    <filter id="pl-blur"><feGaussianBlur stdDeviation="1.6"/></filter>
+  </defs>
+
+  <rect width="150" height="176" fill="#FBF8F1"/>
+  <rect width="150" height="176" fill="none" stroke="#5A3A2A" stroke-width=".9" opacity=".18"/>
+
+  <!-- Janela da foto: uma lembranca desfocada de mar, nao uma imagem nitida. -->
+  <rect x="10" y="10" width="130" height="126" fill="url(#pl-sky)"/>
+  <g filter="url(#pl-blur)" opacity=".7">
+    <path d="M10 86 h130 v50 H10z" fill="#6E8C92"/>
+    <path d="M10 78 C36 70 56 82 82 74 C104 68 122 76 140 71 v12 H10z" fill="#9BA9A0"/>
+    <ellipse cx="112" cy="46" rx="17" ry="17" fill="#E8DFC8" opacity=".8"/>
+  </g>
+  <!-- Grade da mureta a beira-mar, presente nas referencias. -->
+  <g stroke="#EDE6D6" stroke-width="2.4" opacity=".75">
+    <path d="M22 96v40M38 96v40M54 96v40M70 96v40M86 96v40M102 96v40M118 96v40"/>
+  </g>
+  <rect x="10" y="10" width="130" height="126" fill="none" stroke="#1B1B1B" stroke-width=".7" opacity=".2"/>
+
+  <text x="75" y="160" font-family="'Nothing You Could Do', 'Segoe Script', cursive" font-size="15"
+        text-anchor="middle" fill="#A8202A" opacity=".9">a vida sem pressa</text>
+</svg>

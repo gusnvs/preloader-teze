@@ -1,0 +1,170 @@
+/* =========================================================================
+   PAGINAS DE DEMONSTRACAO
+   Propositalmente vazias: o objeto deste laboratorio e a transicao.
+   ========================================================================= */
+
+.page {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: var(--tz-space-4) var(--tz-space-3);
+  background: var(--tz-paper-bright);
+
+  /* A revelacao (cena 8). So `opacity` e `transform` — nada que provoque
+     layout. Ao terminar, a pagina fica sem transform algum, e nao com uma
+     matriz identidade: `position: fixed` dentro dela volta a se ancorar na
+     viewport. */
+  transition:
+    opacity 0.86s var(--tz-ease-settle),
+    transform 0.86s var(--tz-ease-settle);
+}
+
+.page.is-entering {
+  opacity: 0;
+  transform: scale(1.018);
+}
+
+.page__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.5rem, 4vh, 2.75rem);
+  text-align: center;
+}
+
+.page__eyebrow {
+  font-family: var(--tz-font-mono);
+  font-size: 0.66rem;
+  letter-spacing: var(--tz-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tz-ink-soft);
+}
+
+.page__title {
+  margin: 0;
+  font-family: var(--tz-font-display);
+  font-weight: 400;
+  font-size: clamp(2.4rem, 7vw, 5rem);
+  line-height: 0.94;
+  letter-spacing: -0.015em;
+  color: var(--tz-ink);
+}
+
+.page__title em {
+  font-style: italic;
+  color: var(--tz-red);
+}
+
+/* --- Botao de navegacao --------------------------------------------------
+   Etiqueta de bagagem: retangulo de papel com furo, fio vermelho e
+   inclinacao minima. Interacao curta, sem exagero. */
+.page__action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1.9rem 0.95rem 2.6rem;
+  background: var(--tz-paper);
+  color: var(--tz-ink);
+  font-family: var(--tz-font-mono);
+  font-size: clamp(0.7rem, 1.5vw, 0.82rem);
+  letter-spacing: var(--tz-tracking-mid);
+  text-transform: uppercase;
+  border: 1px solid rgba(27, 27, 27, 0.55);
+  box-shadow: var(--tz-shadow-near);
+  transform: rotate(-0.8deg);
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 420ms ease;
+}
+
+/* Furo da etiqueta */
+.page__action::before {
+  content: '';
+  position: absolute;
+  left: 1.1rem;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: -0.275rem;
+  border: 1px solid rgba(27, 27, 27, 0.55);
+  border-radius: 50%;
+  background: var(--tz-paper-bright);
+}
+
+.page__action:hover,
+.page__action:focus-visible {
+  transform: rotate(-0.8deg) translateY(-3px);
+  box-shadow: var(--tz-shadow-lift);
+  background: var(--tz-paper-warm);
+}
+
+.page__action:active {
+  transform: rotate(-0.8deg) translateY(-1px);
+}
+
+.page__action-arrow {
+  color: var(--tz-red);
+  font-size: 1.05em;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.page__action:hover .page__action-arrow {
+  transform: translateX(4px);
+}
+
+.page[data-page='descobertas'] .page__action-arrow {
+  transform: scaleX(-1);
+}
+.page[data-page='descobertas'] .page__action:hover .page__action-arrow {
+  transform: scaleX(-1) translateX(4px);
+}
+
+.page[data-page='descobertas'] .page__action {
+  transform: rotate(0.9deg);
+}
+.page[data-page='descobertas'] .page__action:hover,
+.page[data-page='descobertas'] .page__action:focus-visible {
+  transform: rotate(0.9deg) translateY(-3px);
+}
+.page[data-page='descobertas'] .page__action:active {
+  transform: rotate(0.9deg) translateY(-1px);
+}
+
+/* --- Nota de rodape ------------------------------------------------------ */
+.page__note {
+  position: fixed;
+  right: clamp(1.25rem, 4vw, 3.25rem);
+  bottom: clamp(1.25rem, 4vh, 3rem);
+  max-width: 22ch;
+  font-family: var(--tz-font-hand);
+  font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+  line-height: 1.35;
+  text-align: right;
+  color: var(--tz-ink-soft);
+  opacity: 0.62;
+}
+
+@media (max-width: 640px) {
+  .page__note {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page__action,
+  .page__action-arrow {
+    transition-duration: 1ms;
+  }
+
+  /* A pagina ainda aparece por opacidade — mas sem escala e mais curta. */
+  .page {
+    transition: opacity 0.4s linear;
+  }
+
+  .page.is-entering {
+    transform: none;
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "tezes-preloader-lab",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Laboratorio de pre-loader premium para a Teze - colagem artesanal animada com GSAP",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173",
+    "assets": "node scripts/build-assets.mjs"
+  },
+  "dependencies": {
+    "gsap": "^3.13.0",
+    "matter-js": "^0.20.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3",
+    "vite": "^7.1.0"
+  }
+}

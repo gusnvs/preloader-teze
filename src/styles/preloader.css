@@ -1,0 +1,388 @@
+/* =========================================================================
+   PRE-LOADER — a colagem.
+
+   Arquitetura de transformacao em tres camadas independentes, para que
+   timelines simultaneas nunca disputem a mesma propriedade:
+
+     .tz-piece         -> posicionamento estatico (CSS puro, GSAP nunca toca)
+     .tz-piece__inner  -> entrada / saida  (GSAP: x, y, rotation, scale, opacity)
+     .tz-piece__media  -> reacao / respiro (GSAP: rotation, y, scale)
+
+   Regra de performance: durante a animacao so mudam `transform` e `opacity`.
+   Nenhum layout, nenhuma sombra animada, nenhum filtro animado.
+   ========================================================================= */
+
+.tz-preloader {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  contain: layout paint; /* isola layout/paint do resto do documento */
+}
+
+.tz-preloader.is-active {
+  visibility: visible;
+  pointer-events: auto; /* trava a interacao enquanto a cena roda */
+}
+
+/* --- O mural ------------------------------------------------------------
+   Papel, textura, pecas e pegadas moram no MESMO contexto de empilhamento,
+   e essa e a condicao para o `mix-blend-mode: multiply` funcionar: uma peca
+   de tinta so multiplica contra o que foi pintado abaixo dela dentro do seu
+   proprio contexto. Separar o papel das pecas faria cada desenho blendar
+   contra o nada — ou seja, aparecer com o retangulo branco do arquivo.
+
+   E tambem esta camada, e nao `__stage`, que recebe a escala da cena 3:
+   assim o palco das pecas nunca ganha um transform proprio (que criaria
+   justamente o contexto isolado que queremos evitar). */
+.tz-preloader__mural {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+
+/* --- Fundo de papel ------------------------------------------------------
+   O papel sobe 30% ACIMA do quadro, e essa folga nao e decorativa: na cena 7
+   ele desce e leva junto os desenhos a tinta, que estao pintados com
+   `mix-blend-mode: multiply` e portanto precisam de papel embaixo em TODO
+   quadro da queda — sem ele, o desenho aparece com o retangulo branco do
+   arquivo.
+
+   O numero sai de uma medida, e nao de gosto: a pilha da cena 3 termina mais
+   alta que a tela, e a folga precisa ser maior que a MAIOR peca de tinta
+   (~25% da altura) para que nenhuma delas fique meio dentro, meio fora do
+   papel. As que ficam inteiramente acima dele a cena esconde — ver
+   `scene-07-queda.js`.
+
+   A folga tem um custo: o papel precisa percorre-la antes de descobrir o
+   primeiro pixel da pagina. E o que atrasa o inicio da revelacao dentro da
+   cena 7, e o motivo de ela nao ser maior do que precisa.
+
+   O trecho extra e recortado pelo `overflow: hidden` do container — em
+   repouso nao muda nada. So o gradiente precisa ser reprojetado sobre a
+   caixa mais alta (130%) para continuar caindo no mesmo lugar da tela:
+   raio vertical 90% -> 69%, centro 42% -> 55.4%. */
+.tz-preloader__veil {
+  position: absolute;
+  inset: -30% 0 0 0;
+  background:
+    radial-gradient(120% 69% at 50% 55.4%, var(--tz-paper-bright) 0%, var(--tz-paper) 58%, var(--tz-paper-warm) 100%);
+}
+
+/* Textura de papel gerada (multiply) — some se o asset nao existir. */
+.tz-preloader__grain {
+  position: absolute;
+  /* Acompanha a sobra do papel no topo — ela cai junto com ele, e as duas
+     caixas comecam na mesma altura para que a borda de ataque coincida. */
+  inset: -30% -10% -10% -10%;
+  background-image: var(--tz-grain-src, none);
+  background-size: 42vmax auto;
+  background-repeat: repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.36;
+  pointer-events: none;
+}
+
+/* A BORDA DE ATAQUE do papel — existe so para a cena 7.
+
+   Em repouso este trecho esta fora do quadro e ninguem o ve. Descendo, ele e
+   a fronteira entre a colagem e a pagina nova: uma linha reta atravessando a
+   tela leria como cortina de teatro. Tres unidades de dissolucao bastam para
+   que a borda vire limite de papel, e nao um corte.
+
+   Curta de proposito, e por dois motivos: e papel translucido, entao uma
+   peca de tinta apanhada nela apareceria meio branca; e cada milimetro aqui
+   sai da folga solida que protege a pilha. A cena usa a mesma medida para
+   decidir quem esconder — se mudar aqui, mudar `fall.edgeFade` junto. */
+.tz-preloader__veil,
+.tz-preloader__grain {
+  mask-image: linear-gradient(to bottom, transparent 0, #000 calc(var(--tz-unit) * 3));
+}
+
+/* Ruido fino por cima de tudo: costura as pecas na mesma "pelicula". */
+.tz-preloader__noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+}
+
+/* Vinheta quente: dá profundidade de fotografia de mural. */
+.tz-preloader__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    118% 96% at 50% 46%,
+    rgba(90, 60, 40, 0) 46%,
+    rgba(90, 60, 40, 0.1) 76%,
+    rgba(72, 46, 30, 0.22) 100%
+  );
+}
+
+/* --- Palco da colagem ---------------------------------------------------- */
+.tz-preloader__stage,
+.tz-preloader__trail {
+  position: absolute;
+  inset: 0;
+  transform-style: flat;
+}
+
+.tz-preloader__trail {
+  z-index: 60; /* as pegadas passam por cima do mural */
+
+  /* O blend vive na CAMADA, e nao em cada pegada.
+     `z-index` faz desta camada um contexto de empilhamento, entao uma
+     pegada que tentasse multiplicar por conta propria so encontraria as
+     outras pegadas como fundo — e apareceria com o retangulo branco do
+     arquivo. Multiplicando a camada inteira, a tinta encontra o mural. */
+  mix-blend-mode: multiply;
+}
+
+/* --- Peca ---------------------------------------------------------------- */
+.tz-piece {
+  position: absolute;
+  left: calc(var(--tz-x) * 1%);
+  top: calc(var(--tz-y) * 1%);
+  width: calc(var(--tz-w) * var(--tz-unit));
+  /* Ancora estatica no centro da peca. GSAP anima apenas os filhos. */
+  transform: translate(-50%, -50%);
+  z-index: var(--tz-depth, 1);
+  pointer-events: none;
+}
+
+.tz-piece__inner,
+.tz-piece__media {
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+}
+
+.tz-piece__media {
+  width: 100%;
+  /* Pecas recortadas repousam SOBRE o mural: elas projetam sombra. */
+  filter: var(--tz-drop-paper);
+}
+
+.tz-piece__media > img,
+.tz-piece__media > svg {
+  width: 100%;
+  height: auto;
+}
+
+/* =========================================================================
+   ADESIVO SENDO COLADO (peel)
+
+   O adesivo é desenhado DUAS vezes:
+
+     .tz-sticker__main  a parte já colada — recortada de cima para baixo
+     .tz-sticker__flap  a aba ainda solta — a MESMA arte, espelhada sobre a
+                        linha da dobra e achatada para cinza, porque o que
+                        se vê de uma aba levantada é o verso do papel
+
+   Uma única variável comanda os dois recortes e a origem do espelhamento:
+
+     --tz-peel : 1  aba grande, adesivo quase todo solto
+     --tz-peel : 0  colado, a aba desaparece sozinha
+
+   A dobra fica em `y = peel × altura`. O adesivo cola de baixo para cima —
+   a borda de baixo encosta primeiro — e a aba pende sobre a parte já colada,
+   que é o que acontece quando se assenta um adesivo com o polegar.
+   ========================================================================= */
+
+.tz-sticker {
+  position: relative;
+  display: block;
+  width: 100%;
+  --tz-peel: 0;
+}
+
+.tz-sticker__main {
+  display: block;
+  /* Esconde o trecho que ainda não encostou na parede. */
+  clip-path: inset(calc(var(--tz-peel) * 100%) 0 0 0);
+}
+
+.tz-sticker__flap {
+  position: absolute;
+  inset: 0;
+  /* Só o trecho solto existe na aba. */
+  clip-path: inset(0 0 calc(100% - var(--tz-peel) * 100%) 0);
+  /* Espelha exatamente sobre a linha da dobra. */
+  transform-origin: 50% calc(var(--tz-peel) * 100%);
+  transform: scaleY(-1);
+  /* Verso do adesivo: papel siliconado, cinza chapado, com a sombra de quem
+     está descolado da superfície.
+
+     `brightness(0)` zera o RGB preservando o alpha — sobra a silhueta em
+     preto — e `invert()` a levanta para um cinza constante. É o equivalente
+     em CSS do `feFlood` + `feComposite in="SourceAlpha"` que a referência
+     faz em SVG, e resolve um problema que `grayscale()` sozinho não resolve:
+     as peças da Tezê já são de papel claro, então dessaturar deixaria o
+     verso branco, invisível contra o mural.
+
+     O tom é mais escuro do que o cinza da referência (#b3b3b3): lá os
+     adesivos são de cor saturada e um cinza claro salta; aqui o mural é de
+     papel creme, e um verso claro demais simplesmente some.
+
+     O raio da sombra é curto de propósito: o custo de um `drop-shadow`
+     cresce com o quadrado do desfoque, e aqui ele se repete em dezenas de
+     abas ao mesmo tempo.
+
+     Filtro estático — nunca entra em tween. */
+  filter: brightness(0) invert(0.63) sepia(0.5) saturate(0.55) hue-rotate(345deg)
+    drop-shadow(0 -2px 3px rgba(56, 36, 24, 0.55));
+}
+
+.tz-sticker__main > img,
+.tz-sticker__main > svg,
+.tz-sticker__flap > img,
+.tz-sticker__flap > svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Colado: a aba não tem mais o que mostrar. Tirá-la da árvore de pintura
+   evita que ~100 filtros continuem custando depois da cena terminar. */
+.tz-piece[data-peeled] .tz-sticker__flap {
+  display: none;
+}
+
+/* Pecas de tinta sobre papel estao DENTRO do papel: nao projetam sombra,
+   e se integram ao fundo por multiplicacao. Fisicamente coerente, e
+   dispensa qualquer recorte alpha nos desenhos.
+
+   O `mix-blend-mode` vive na propria `.tz-piece` — nunca em um descendente.
+   `.tz-piece` tem `z-index`, logo e um contexto de empilhamento: uma regra
+   de blend aplicada dentro dela so enxergaria os seus proprios filhos. */
+.tz-piece[data-blend='multiply'] {
+  mix-blend-mode: multiply;
+}
+
+.tz-piece[data-blend='multiply'] .tz-piece__media {
+  filter: none;
+}
+
+/* Ajuste cromatico estatico: harmoniza uma ilustracao com a paleta sem
+   custo de runtime (o filtro e resolvido uma vez, na primeira pintura). */
+.tz-piece[data-tint='palha'] .tz-piece__media {
+  filter: sepia(0.22) saturate(0.86) hue-rotate(-8deg) brightness(0.98);
+}
+
+/* Profundidade: pecas "de baixo" recebem sombra mais curta. */
+.tz-piece[data-layer='back'] .tz-piece__media {
+  filter: drop-shadow(0 1px 1px rgba(60, 40, 28, 0.16));
+}
+
+/* A camada de preenchimento nao projeta sombra.
+   Em uma parede lotada nao se ve a sombra de cada adesivo — o que da
+   profundidade e a propria sobreposicao. E cada `drop-shadow` promove o
+   elemento a uma camada de composicao propria: oitenta delas custariam
+   memoria de GPU sem nenhum ganho visivel. */
+.tz-piece[data-fill] .tz-piece__media {
+  filter: none;
+}
+.tz-piece[data-layer='front'] .tz-piece__media {
+  filter: var(--tz-drop-paper-lift);
+}
+
+/* --- Pegadas ------------------------------------------------------------- */
+.tz-print {
+  position: absolute;
+  left: calc(var(--tz-x) * 1%);
+  top: calc(var(--tz-y) * 1%);
+  width: calc(var(--tz-w) * var(--tz-unit));
+  transform: translate(-50%, -50%) rotate(calc(var(--tz-rot) * 1deg));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Pe esquerdo e o espelho do direito — um unico asset serve aos dois.
+   O espelhamento fica na imagem, e nao em `.tz-print__media`: essa camada
+   pertence ao GSAP (a batida do carimbo) e nao pode ter transform de CSS
+   competindo com ela. */
+.tz-print[data-foot='left'] .tz-print__media > * {
+  transform: scaleX(-1);
+}
+
+.tz-print__media {
+  width: 100%;
+  transform-origin: 50% 50%;
+}
+
+.tz-print__media > img,
+.tz-print__media > svg {
+  width: 100%;
+  height: auto;
+}
+
+/* --- Assinatura discreta ------------------------------------------------- */
+.tz-preloader__mark {
+  position: absolute;
+  left: clamp(1.25rem, 4vw, 3.25rem);
+  bottom: clamp(1.25rem, 4vh, 3rem);
+  z-index: 80;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-family: var(--tz-font-mono);
+  font-size: clamp(0.55rem, 1.1vw, 0.7rem);
+  letter-spacing: var(--tz-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tz-ink-soft);
+  opacity: 0;
+  mix-blend-mode: multiply;
+}
+
+.tz-preloader__mark-word {
+  font-family: var(--tz-font-hand);
+  font-size: clamp(1.05rem, 2.4vw, 1.6rem);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--tz-red);
+}
+
+/* Régua de progresso: um fio de tinta, nao uma barra de UI. */
+.tz-preloader__rule {
+  position: relative;
+  display: block;
+  width: clamp(3rem, 9vw, 6rem);
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+  transform-origin: 0 50%;
+}
+
+/* --- Estado de performance ----------------------------------------------
+   `will-change` só existe enquanto a timeline roda: mantê-lo permanente
+   desperdiçaria memória de GPU em todas as páginas.
+
+   E fica só em UMA das três camadas. Promover `__inner` e `__media` ao
+   mesmo tempo, com mais de cem peças em cena, dobra o número de camadas de
+   composição e passa a custar mais do que economiza — medido: o mesmo teste
+   melhora quando `__media` volta a ser pintada junto com o pai. */
+.tz-preloader.is-running .tz-piece__inner,
+.tz-preloader.is-running .tz-print {
+  will-change: transform, opacity;
+}
+
+/* O papel: opacidade na cena 1, deslocamento na cena 7. Duas camadas so —
+   e as duas se movem juntas, entao continuam sendo uma superficie. */
+.tz-preloader.is-running .tz-preloader__veil,
+.tz-preloader.is-running .tz-preloader__grain {
+  will-change: transform, opacity;
+}
+
+/* =========================================================================
+   MOVIMENTO REDUZIDO
+   O sistema operacional pede sobriedade: a colagem vira uma imagem parada
+   que aparece e desaparece. A historia continua, sem deslocamento.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .tz-preloader__grain,
+  .tz-preloader__noise {
+    opacity: 0.28;
+  }
+}

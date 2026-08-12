@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#F4EDDF" />
+    <meta
+      name="description"
+      content="Laboratorio de pre-loader premium — colagem artesanal animada em GSAP."
+    />
+
+    <title>Tezê · Laboratorio de Pre-loader</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Fontes carregadas sem bloquear o primeiro render. O pre-loader precisa
+      comecar no primeiro quadro possivel; as fontes entram em seguida, e o
+      `display=swap` garante que nenhum texto fique invisivel esperando.
+    -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=Courier+Prime:wght@400;700&family=Nothing+You+Could+Do&display=swap"
+      media="print"
+      onload="this.media='all'; this.onload=null"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=Courier+Prime:wght@400;700&family=Nothing+You+Could+Do&display=swap"
+      />
+    </noscript>
+  </head>
+
+  <body class="is-booting">
+    <!--
+      #app  -> onde as paginas sao renderizadas pelo roteador
+      #preloader-root -> camada isolada da experiencia de carregamento
+      Os dois sao irmaos para que o pre-loader nunca dependa do DOM da pagina.
+    -->
+    <main id="app" class="app" data-outlet></main>
+    <div id="preloader-root" class="preloader-root"></div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
