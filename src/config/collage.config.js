@@ -537,17 +537,23 @@ export const TRAIL = {
       to: { x: 36, y: 110 },
       portrait: { from: { x: -10, y: 26 }, control: { x: 20, y: 58 }, to: { x: 42, y: 112 } },
     },
-    // Do topo, saindo pela direita. O ponto de controle fica a ESQUERDA da
-    // reta: a pata desce encostando no miolo da cena antes de sair — sem
-    // isso ela raspa a borda e o caminho vira um detalhe de canto.
+    // Pela direita, SUBINDO e saindo pelo topo — o caminho contrario ao da
+    // primeira. Duas patas indo para o mesmo lado leem como uma so, cortada
+    // ao meio; indo em sentidos opostos, leem como duas.
+    //
+    // A curva e a mesma de antes, so que percorrida ao contrario: `from` e
+    // `to` trocados, `control` no lugar. E a inversao resolve a orientacao
+    // sozinha — os dedos seguem a tangente do caminho, e a tangente inverteu
+    // junto. O ponto de controle continua a ESQUERDA da reta, para a pata
+    // subir encostando no miolo da cena em vez de raspar a borda.
     {
       id: 'direita',
       delay: 0.95,
       steps: 8,
-      from: { x: 80, y: -8 },
+      from: { x: 108, y: 56 },
       control: { x: 76, y: 28 },
-      to: { x: 108, y: 56 },
-      portrait: { from: { x: 74, y: -8 }, control: { x: 70, y: 32 }, to: { x: 112, y: 66 } },
+      to: { x: 80, y: -8 },
+      portrait: { from: { x: 112, y: 66 }, control: { x: 70, y: 32 }, to: { x: 74, y: -8 } },
     },
   ],
 
