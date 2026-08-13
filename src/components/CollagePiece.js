@@ -9,17 +9,20 @@
  *
  * Duas timelines podem entao rodar ao mesmo tempo sobre a mesma peca sem
  * disputar a propriedade `transform`.
+ *
+ * Dentro de `__media` mora ou a arte direto (`<img>`), ou — nas seis pecas
+ * dos atos 1 e 2 — uma FIGURINHA QUE COLA, com as suas proprias faixas. A
+ * escolha e uma linha na composicao (`peel`), e o resto do projeto nao
+ * precisa saber a diferenca: a peca continua tendo `inner`, `media` e
+ * geometria.
  */
 
 import { el, setVars } from '../utils/dom.js';
-import { createAssetNode } from '../utils/assets.js';
-import { createStickerNode } from './StickerPeel.js';
+import { createAssetNode, getAsset } from '../utils/assets.js';
+import { createPeelSticker, FAIXAS_POR_NIVEL } from './PeelSticker.js';
 import { createJitter } from '../utils/math.js';
 
 const LAYER_Z = { back: 10, mid: 30, front: 50 };
-
-/** Largura mínima (em `--tz-unit`) para uma peça valer o efeito de colagem. */
-const PEEL_MIN_WIDTH = 14;
 
 /**
  * Aplica a variante de retrato sobre a definicao original.
@@ -38,14 +41,14 @@ function resolveGeometry(entry, portrait) {
 
 /**
  * @param {object} entry item de COLLAGE
- * @param {{ portrait: boolean, index: number }} context
- * @returns {null | { id, node, inner, media, data }}
+ * @param {{ portrait: boolean, index: number, tier?: string, reduced?: boolean }} context
+ * @returns {null | { id, node, inner, media, peel, data }}
  */
-export function createCollagePiece(entry, { portrait, index }) {
+export function createCollagePiece(entry, { portrait, index, tier = 'alta', reduced = false }) {
   if (portrait && entry.hidePortrait) return null;
 
-  const media = createAssetNode(entry.asset, '');
-  if (!media) {
+  const asset = getAsset(entry.asset);
+  if (!asset) {
     if (import.meta.env.DEV) {
       console.warn(`[colagem] asset ausente: "${entry.asset}" (peca "${entry.id}") — ignorada`);
     }
@@ -55,19 +58,22 @@ export function createCollagePiece(entry, { portrait, index }) {
   const geometry = resolveGeometry(entry, portrait);
   const jitter = createJitter(entry.id);
 
-  // Duas condições para uma peça descolar como adesivo:
-  //
-  //  · ser recortada. Os desenhos a tinta entram em `multiply`: estão
-  //    impressos NO papel, não colados SOBRE ele, e não têm verso.
-  //
-  //  · ser grande o bastante para o gesto aparecer. Abaixo de ~14 unidades
-  //    a aba tem poucos pixels e ninguém a enxerga — mas ela custa um
-  //    `filter`, uma camada de composição e um `clip-path` animado, exatamente
-  //    o mesmo que custa em um adesivo grande. É o pior negócio possível.
-  const peels = !entry.blend && !entry.noPeel && geometry.w >= PEEL_MIN_WIDTH;
-  const stickerNode = peels ? createStickerNode(entry.asset, media) : null;
+  // A figurinha que cola so existe onde a composicao pede. Nao e um efeito
+  // que se liga "para todo mundo": cada uma custa uma dezena de faixas, e o
+  // gesto so se le quando ha tempo e tamanho para ve-lo.
+  const peel = entry.peel
+    ? createPeelSticker({
+        src: asset.src,
+        ratio: asset.ratio,
+        direction: entry.peel,
+        slices: FAIXAS_POR_NIVEL[tier] ?? FAIXAS_POR_NIVEL.alta,
+        reduced,
+      })
+    : null;
 
-  const mediaNode = el('div', { class: 'tz-piece__media' }, [stickerNode ?? media]);
+  const mediaNode = el('div', { class: 'tz-piece__media' }, [
+    peel ? peel.node : createAssetNode(entry.asset, ''),
+  ]);
   const innerNode = el('div', { class: 'tz-piece__inner' }, [mediaNode]);
 
   const node = el(
@@ -77,10 +83,8 @@ export function createCollagePiece(entry, { portrait, index }) {
       'data-piece': entry.id,
       'data-act': entry.act,
       'data-layer': entry.layer ?? 'mid',
-      'data-blend': entry.blend ? 'multiply' : null,
-      'data-tint': entry.tint ?? null,
       'data-fill': entry.isFill ? '' : null,
-      'data-peel': peels ? '' : null,
+      'data-peel': peel ? '' : null,
       'aria-hidden': 'true',
     },
     [innerNode],
@@ -90,8 +94,8 @@ export function createCollagePiece(entry, { portrait, index }) {
     '--tz-x': geometry.x,
     '--tz-y': geometry.y,
     '--tz-w': geometry.w,
-    // z-index explícito (camada de preenchimento) ou base da camada mais o
-    // desempate estável pela ordem de declaração.
+    // z-index explicito (camada de preenchimento) ou base da camada mais o
+    // desempate estavel pela ordem de declaracao.
     '--tz-depth': entry.depth ?? (LAYER_Z[entry.layer] ?? LAYER_Z.mid) + index,
   });
 
@@ -100,16 +104,16 @@ export function createCollagePiece(entry, { portrait, index }) {
     node,
     inner: innerNode,
     media: mediaNode,
-    // Alvo do tween de colagem. `null` nas peças de tinta, que não descolam.
-    sticker: stickerNode?.classList.contains('tz-sticker') ? stickerNode : null,
+    /** Controle da colagem. `null` nas pecas que apenas caem. */
+    peel,
     /**
-     * Geometria de projeto, imutável.
+     * Geometria de projeto, imutavel.
      *
-     * A simulação da cena 3 escreve em `data.x/y/rot` a posição em que a
-     * peça REALMENTE parou — as cenas 5 e 6 precisam disso. Sem uma cópia
-     * intocada para restaurar, cada execução partiria do resultado da
-     * anterior e a colagem giraria um pouco mais a cada navegação, até virar
-     * de cabeça para baixo.
+     * A simulacao da cena 3 escreve em `data.x/y/rot` a posicao em que a
+     * peca REALMENTE parou — as cenas 5 e 6 precisam disso. Sem uma copia
+     * intocada para restaurar, cada execucao partiria do resultado da
+     * anterior e a colagem giraria um pouco mais a cada navegacao, ate virar
+     * de cabeca para baixo.
      */
     origem: { ...geometry },
     data: {

@@ -13,6 +13,7 @@
 
 import './styles/tokens.css';
 import './styles/base.css';
+import './styles/peel.css';
 import './styles/preloader.css';
 import './styles/pages.css';
 
@@ -56,10 +57,21 @@ async function boot() {
   });
 }
 
-boot();
+// `?lab=peel` abre o laboratorio da figurinha em vez da experiencia: uma
+// figurinha so, parada, com o progresso na mao. E onde a fisica da colagem e
+// julgada — assistir a transicao inteira nao mostra o que acontece entre dois
+// quadros. So existe em desenvolvimento.
+const laboratorio =
+  import.meta.env.DEV && new URLSearchParams(location.search).get('lab') === 'peel';
+
+if (laboratorio) {
+  import('./utils/peelLab.js').then(({ mountPeelLab }) => mountPeelLab());
+} else {
+  boot();
+}
 
 // Ferramentas de direcao de arte — apenas em desenvolvimento.
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && !laboratorio) {
   import('./utils/devtools.js').then(({ mountDevTools }) => {
     mountDevTools({ preloader, router });
   });

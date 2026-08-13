@@ -26,7 +26,7 @@ function resolveTrail(portrait) {
  * @param {HTMLElement} root  container fixo do pre-loader
  * @param {{ trailSteps: number }} options
  */
-export function buildPreloaderStage(root, { trailSteps = 13 } = {}) {
+export function buildPreloaderStage(root, { trailSteps = 13, reduced = false } = {}) {
   const portrait = isPortrait();
   const tier = resolveTier();
 
@@ -49,7 +49,7 @@ export function buildPreloaderStage(root, { trailSteps = 13 } = {}) {
   const pieces = [];
 
   const anexar = (entry, index) => {
-    const piece = createCollagePiece(entry, { portrait, index });
+    const piece = createCollagePiece(entry, { portrait, index, tier, reduced });
     if (!piece) return;
     pieces.push(piece);
     stage.appendChild(piece.node);

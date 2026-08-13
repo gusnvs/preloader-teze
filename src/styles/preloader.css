@@ -43,31 +43,24 @@
 }
 
 /* --- Fundo de papel ------------------------------------------------------
-   O papel sobe 30% ACIMA do quadro, e essa folga nao e decorativa: na cena 7
-   ele desce e leva junto os desenhos a tinta, que estao pintados com
-   `mix-blend-mode: multiply` e portanto precisam de papel embaixo em TODO
-   quadro da queda — sem ele, o desenho aparece com o retangulo branco do
-   arquivo.
-
-   O numero sai de uma medida, e nao de gosto: a pilha da cena 3 termina mais
-   alta que a tela, e a folga precisa ser maior que a MAIOR peca de tinta
-   (~25% da altura) para que nenhuma delas fique meio dentro, meio fora do
-   papel. As que ficam inteiramente acima dele a cena esconde — ver
-   `scene-07-queda.js`.
+   O papel sobe 10% ACIMA do quadro, e essa folga tem uma funcao so: na cena 7
+   ele desce, e a borda de ataque dele e dissolvida (ver a `mask` abaixo).
+   Sem sobra, essa dissolucao ficaria dentro do quadro desde o primeiro
+   instante — o topo da tela nasceria meio transparente.
 
    A folga tem um custo: o papel precisa percorre-la antes de descobrir o
-   primeiro pixel da pagina. E o que atrasa o inicio da revelacao dentro da
-   cena 7, e o motivo de ela nao ser maior do que precisa.
+   primeiro pixel da pagina. Por isso ela e pouco mais que a propria
+   dissolucao, e nao um numero redondo generoso.
 
    O trecho extra e recortado pelo `overflow: hidden` do container — em
    repouso nao muda nada. So o gradiente precisa ser reprojetado sobre a
-   caixa mais alta (130%) para continuar caindo no mesmo lugar da tela:
-   raio vertical 90% -> 69%, centro 42% -> 55.4%. */
+   caixa mais alta (110%) para continuar caindo no mesmo lugar da tela:
+   raio vertical 90% -> 82%, centro 42% -> 47.3%. */
 .tz-preloader__veil {
   position: absolute;
-  inset: -30% 0 0 0;
+  inset: -10% 0 0 0;
   background:
-    radial-gradient(120% 69% at 50% 55.4%, var(--tz-paper-bright) 0%, var(--tz-paper) 58%, var(--tz-paper-warm) 100%);
+    radial-gradient(120% 82% at 50% 47.3%, var(--tz-paper-bright) 0%, var(--tz-paper) 58%, var(--tz-paper-warm) 100%);
 }
 
 /* Textura de papel gerada (multiply) — some se o asset nao existir. */
@@ -75,12 +68,14 @@
   position: absolute;
   /* Acompanha a sobra do papel no topo — ela cai junto com ele, e as duas
      caixas comecam na mesma altura para que a borda de ataque coincida. */
-  inset: -30% -10% -10% -10%;
+  inset: -10%;
   background-image: var(--tz-grain-src, none);
-  background-size: 42vmax auto;
+  background-size: 56vmax auto;
   background-repeat: repeat;
   mix-blend-mode: multiply;
-  opacity: 0.36;
+  /* A textura oficial e um xadrez claro, e nao um grao: em cima de 0.2 ela
+     deixa de ser papel e vira estampa — e as emendas do mosaico aparecem. */
+  opacity: 0.2;
   pointer-events: none;
 }
 
@@ -91,10 +86,8 @@
    tela leria como cortina de teatro. Tres unidades de dissolucao bastam para
    que a borda vire limite de papel, e nao um corte.
 
-   Curta de proposito, e por dois motivos: e papel translucido, entao uma
-   peca de tinta apanhada nela apareceria meio branca; e cada milimetro aqui
-   sai da folga solida que protege a pilha. A cena usa a mesma medida para
-   decidir quem esconder — se mudar aqui, mudar `fall.edgeFade` junto. */
+   Curta de proposito: cada milimetro aqui precisa caber na sobra do papel
+   acima do quadro, senao a dissolucao aparece em repouso. */
 .tz-preloader__veil,
 .tz-preloader__grain {
   mask-image: linear-gradient(to bottom, transparent 0, #000 calc(var(--tz-unit) * 3));
@@ -166,113 +159,24 @@
   filter: var(--tz-drop-paper);
 }
 
-.tz-piece__media > img,
-.tz-piece__media > svg {
+.tz-piece__media > img {
   width: 100%;
   height: auto;
 }
 
-/* =========================================================================
-   ADESIVO SENDO COLADO (peel)
+/* A figurinha que cola (atos 1 e 2) tem estrutura propria: as faixas, a
+   perspectiva e o verso siliconado moram em `peel.css`. Aqui fica so o que a
+   peca do mural precisa saber sobre ela — que a sombra de repouso pertence a
+   figurinha, e nao a camada de midia.
 
-   O adesivo é desenhado DUAS vezes:
-
-     .tz-sticker__main  a parte já colada — recortada de cima para baixo
-     .tz-sticker__flap  a aba ainda solta — a MESMA arte, espelhada sobre a
-                        linha da dobra e achatada para cinza, porque o que
-                        se vê de uma aba levantada é o verso do papel
-
-   Uma única variável comanda os dois recortes e a origem do espelhamento:
-
-     --tz-peel : 1  aba grande, adesivo quase todo solto
-     --tz-peel : 0  colado, a aba desaparece sozinha
-
-   A dobra fica em `y = peel × altura`. O adesivo cola de baixo para cima —
-   a borda de baixo encosta primeiro — e a aba pende sobre a parte já colada,
-   que é o que acontece quando se assenta um adesivo com o polegar.
-   ========================================================================= */
-
-.tz-sticker {
-  position: relative;
-  display: block;
-  width: 100%;
-  --tz-peel: 0;
-}
-
-.tz-sticker__main {
-  display: block;
-  /* Esconde o trecho que ainda não encostou na parede. */
-  clip-path: inset(calc(var(--tz-peel) * 100%) 0 0 0);
-}
-
-.tz-sticker__flap {
-  position: absolute;
-  inset: 0;
-  /* Só o trecho solto existe na aba. */
-  clip-path: inset(0 0 calc(100% - var(--tz-peel) * 100%) 0);
-  /* Espelha exatamente sobre a linha da dobra. */
-  transform-origin: 50% calc(var(--tz-peel) * 100%);
-  transform: scaleY(-1);
-  /* Verso do adesivo: papel siliconado, cinza chapado, com a sombra de quem
-     está descolado da superfície.
-
-     `brightness(0)` zera o RGB preservando o alpha — sobra a silhueta em
-     preto — e `invert()` a levanta para um cinza constante. É o equivalente
-     em CSS do `feFlood` + `feComposite in="SourceAlpha"` que a referência
-     faz em SVG, e resolve um problema que `grayscale()` sozinho não resolve:
-     as peças da Tezê já são de papel claro, então dessaturar deixaria o
-     verso branco, invisível contra o mural.
-
-     O tom é mais escuro do que o cinza da referência (#b3b3b3): lá os
-     adesivos são de cor saturada e um cinza claro salta; aqui o mural é de
-     papel creme, e um verso claro demais simplesmente some.
-
-     O raio da sombra é curto de propósito: o custo de um `drop-shadow`
-     cresce com o quadrado do desfoque, e aqui ele se repete em dezenas de
-     abas ao mesmo tempo.
-
-     Filtro estático — nunca entra em tween. */
-  filter: brightness(0) invert(0.63) sepia(0.5) saturate(0.55) hue-rotate(345deg)
-    drop-shadow(0 -2px 3px rgba(56, 36, 24, 0.55));
-}
-
-.tz-sticker__main > img,
-.tz-sticker__main > svg,
-.tz-sticker__flap > img,
-.tz-sticker__flap > svg {
-  width: 100%;
-  height: auto;
-}
-
-/* Colado: a aba não tem mais o que mostrar. Tirá-la da árvore de pintura
-   evita que ~100 filtros continuem custando depois da cena terminar. */
-.tz-piece[data-peeled] .tz-sticker__flap {
-  display: none;
-}
-
-/* Pecas de tinta sobre papel estao DENTRO do papel: nao projetam sombra,
-   e se integram ao fundo por multiplicacao. Fisicamente coerente, e
-   dispensa qualquer recorte alpha nos desenhos.
-
-   O `mix-blend-mode` vive na propria `.tz-piece` — nunca em um descendente.
-   `.tz-piece` tem `z-index`, logo e um contexto de empilhamento: uma regra
-   de blend aplicada dentro dela so enxergaria os seus proprios filhos. */
-.tz-piece[data-blend='multiply'] {
-  mix-blend-mode: multiply;
-}
-
-.tz-piece[data-blend='multiply'] .tz-piece__media {
+   Um `filter` nesta camada seria fatal: filtro achata o contexto 3D, e o
+   enrolamento inteiro viraria um desenho plano. */
+.tz-piece[data-peel] .tz-piece__media {
   filter: none;
 }
 
-/* Ajuste cromatico estatico: harmoniza uma ilustracao com a paleta sem
-   custo de runtime (o filtro e resolvido uma vez, na primeira pintura). */
-.tz-piece[data-tint='palha'] .tz-piece__media {
-  filter: sepia(0.22) saturate(0.86) hue-rotate(-8deg) brightness(0.98);
-}
-
 /* Profundidade: pecas "de baixo" recebem sombra mais curta. */
-.tz-piece[data-layer='back'] .tz-piece__media {
+.tz-piece[data-layer='back']:not([data-peel]) .tz-piece__media {
   filter: drop-shadow(0 1px 1px rgba(60, 40, 28, 0.16));
 }
 
@@ -284,7 +188,7 @@
 .tz-piece[data-fill] .tz-piece__media {
   filter: none;
 }
-.tz-piece[data-layer='front'] .tz-piece__media {
+.tz-piece[data-layer='front']:not([data-peel]) .tz-piece__media {
   filter: var(--tz-drop-paper-lift);
 }
 

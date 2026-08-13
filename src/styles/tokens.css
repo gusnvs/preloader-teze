@@ -5,17 +5,30 @@
    ========================================================================= */
 
 :root {
-  /* ---- Paleta ---------------------------------------------------------- */
-  --tz-red: #a8202a;
-  --tz-red-deep: #7e141c;
-  --tz-red-soft: #c9505a;
+  /* ---- Paleta ----------------------------------------------------------
+     Os cinco primeiros valores sao os da cartela oficial da marca
+     (`assets/oficial/TEZE_PALETA-DE-CORES.png`), lidos dela e nao
+     aproximados. O resto e o papel e a tinta, que vem da propria arte. */
+  --tz-red: #921915;
+  --tz-navy: #194b64;
+  --tz-olive: #768728;
+  --tz-gold: #b58526;
+  --tz-rose: #de8589;
+
+  --tz-red-deep: #6d1210;
+  --tz-red-soft: var(--tz-rose);
   --tz-paper: #f4eddf;
   --tz-paper-warm: #eadfc9;
   --tz-paper-bright: #fbf7ef;
   --tz-ink: #1b1b1b;
   --tz-ink-soft: #4a453e;
-  --tz-navy: #2a4b6b;
-  --tz-gold: #e3b33f;
+
+  /* ---- Verso do adesivo ------------------------------------------------
+     O papel siliconado que aparece quando a figurinha enrola. Nao e branco:
+     branco contra papel creme some, e o verso precisa LER como outra face. */
+  --tz-peel-liner: #cdc0ae;
+  --tz-peel-liner-hi: #ded3c4;
+  --tz-peel-liner-lo: #b0a191;
 
   /* ---- Sombras (colagem fisica) ---------------------------------------- */
   --tz-shadow-near: 0 1px 2px rgba(52, 34, 24, 0.16);

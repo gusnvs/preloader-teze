@@ -35,21 +35,17 @@ function larguraDe(fill, asset, jitter, escala) {
   return +(jitter.range(min, max) * escala).toFixed(2);
 }
 
-function criarEntrada({ id, asset, x, y, w, fill, jitter, depth, peel }) {
+function criarEntrada({ id, asset, x, y, w, jitter, depth }) {
   return {
     id,
     asset,
     // Toda a camada entra no ato 3: é ela que produz a inundação.
     act: 3,
     isFill: true,
-    // Em aparelho modesto o preenchimento não descola — as peças narrativas
-    // continuam colando, e é nelas que o gesto realmente se lê.
-    noPeel: !peel,
     x: +x.toFixed(2),
     y: +y.toFixed(2),
     w,
     layer: 'back',
-    blend: fill.blendPool.includes(asset),
     // z-index baixo e cíclico: a ordem entre as peças de fundo não importa,
     // só que todas fiquem abaixo das peças narrativas.
     depth,
@@ -99,7 +95,6 @@ export function generateFillPieces(fill, { portrait, tier = 'alta' }) {
             w: larguraDe(fill, asset, jitter, escala),
             fill,
             jitter,
-            peel: orcamento.peel,
             depth: 1 + ((row + col + pass) % 4),
           }),
         );
@@ -124,7 +119,6 @@ export function generateFillPieces(fill, { portrait, tier = 'alta' }) {
         w: larguraDe(fill, asset, jitter, escala),
         fill,
         jitter,
-        peel: orcamento.peel,
         // Acima da base, abaixo das peças narrativas.
         depth: 6 + (i % 3),
       }),

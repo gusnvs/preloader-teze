@@ -26,82 +26,52 @@ export const MOTION = {
     express: { timeScale: 1.55, trailSteps: 11 },
   },
 
-  /** CENA 1 — silencio visual: as primeiras pecas pousam. */
+  /**
+   * CENA 1 — silencio visual: as tres primeiras figurinhas sao coladas.
+   *
+   * `stagger` aqui e generoso de proposito. Colar um adesivo e um GESTO, e
+   * gesto precisa de tempo: com as pecas se atropelando, o que se ve e um
+   * monte de coisa aparecendo — exatamente o que o efeito existe para nao
+   * ser. Tres pecas, uma de cada vez, com silencio entre elas.
+   */
   awaken: {
     veilDuration: 0.46,
-    duration: 0.78,
-    stagger: 0.11,
+    /** Quanto dura a colagem de uma figurinha, do levantado ao assentado. */
+    duration: 0.96,
+    stagger: 0.36,
     ease: 'tz.settle',
-    riseDistance: 14,
-    riseBias: 0.85,
-    rotationOffset: 7, // graus a mais na entrada, para "assentar" girando
-    scaleFrom: 0.92,
-    /** A primeira peça é colada devagar: dá para ver a aba assentando. */
-    peel: { from: 0.88, delayRatio: 0.1, durationRatio: 0.8, ease: 'tz.settle' },
+    /** O quanto a peca chega fora do lugar, em unidades. Curto: ela e POSTA
+     *  na parede, nao voa ate ela. */
+    approach: 4,
+    rotationOffset: 4, // graus a mais na chegada, para "assentar" girando
+    scaleFrom: 0.97,
+    /** A curva da colagem, e o quanto ela espera o gesto de aproximacao. */
+    pressEase: 'tz.press',
+    pressDelay: 0.08,
     /** Preenchimento do fio de tinta ao lado da assinatura. */
     ruleDuration: 1.2,
   },
 
-  /** CENA 2 — a colagem ganha corpo. */
+  /** CENA 2 — a colagem ganha corpo: mais tres, com a mao ja solta. */
   gather: {
-    duration: 0.74,
-    stagger: 0.05,
+    duration: 0.88,
+    stagger: 0.3,
     ease: 'tz.settle',
-    riseDistance: 20,
-    riseBias: 0.9,
-    rotationOffset: 10,
-    scaleFrom: 0.88,
-    peel: { from: 0.85, delayRatio: 0.1, durationRatio: 0.72, ease: 'tz.stamp' },
+    approach: 3.4,
+    rotationOffset: 5,
+    scaleFrom: 0.97,
+    pressEase: 'tz.press',
+    pressDelay: 0.05,
   },
 
   /**
    * CENA 3 — a inundação. A tela lota.
-   * `stagger` aqui é o controle mais sensível de toda a animação: é ele que
-   * decide se a colagem "enche" (baixo) ou "pipoca" (alto).
+   *
+   * Nada aqui é tween: a cena inteira é uma simulação. Os números que
+   * sobraram descrevem física, não movimento — e é por isso que este bloco
+   * não tem `duration`, `ease` nem `stagger` como os outros.
    */
   mural: {
-    /**
-     * Curta, e esse é o número que governa o custo da cena inteira.
-     *
-     * Com `stagger` de 7 ms, o total de peças em movimento ao mesmo tempo é
-     * `duration / stagger` — a 0,72 s eram ~100 peças animando juntas, o que
-     * derrubava quadros em CPU modesta. A 0,44 s são ~60, e a leitura não
-     * piora: numa inundação o gesto de cada adesivo é rápido mesmo.
-     */
-    duration: 0.44,
-    // Com ~127 peças no ato 3, este número multiplica: cada milésimo aqui
-    // vira 0,13 s de cena. É o controle mais sensível da animação inteira.
-    stagger: 0.007,
-    ease: 'tz.settle',
-    /** Alto de propósito: é o que faz a peça SUBIR, e não só aparecer.
-     *  Somado a `riseBias: 1`, cada adesivo parte de ~30 unidades abaixo do
-     *  lugar dele. Mais que isso e a peça passa metade da entrada fora da
-     *  tela — a subida deixa de ser vista e vira só um atraso. */
-    riseDistance: 15,
-    /** Todo mundo chega de baixo, inclusive quem entra pelos lados. */
-    riseBias: 1,
-    rotationOffset: 15,
-    scaleFrom: 0.86,
-    /**
-     * A colagem do adesivo (ver `--tz-peel` em `preloader.css`).
-     *   from          quanto do adesivo começa solto (0–1)
-     *   delayRatio    quando a aba começa a assentar, em fração da entrada
-     *   durationRatio quanto dura, em fração da entrada — menor que 1 para
-     *                 que o adesivo termine de colar ANTES de parar de se
-     *                 mover, como um polegar que assenta o papel em curso
-     */
-    peel: {
-      from: 0.82,
-      delayRatio: 0.1,
-      /**
-       * Curto de propósito. Com o stagger da inundação, cada décimo aqui
-       * decide QUANTOS adesivos estão descolando ao mesmo tempo — e é a
-       * simultaneidade, não o número total de peças, que pesa: cada aba em
-       * movimento repinta o próprio `clip-path` a cada quadro.
-       */
-      durationRatio: 0.42,
-      ease: 'tz.stamp',
-    },
     /**
      * A CHUVA DE ADESIVOS.
      *
@@ -251,12 +221,6 @@ export const MOTION = {
      * precisa andar para sair mesmo. Medido: ~0.40 no pior caso.
      */
     overshoot: 0.55,
-    /**
-     * A dissolucao da borda de ataque do papel, em unidades. Precisa ser a
-     * mesma medida da `mask-image` do veu em `preloader.css`: a cena usa esse
-     * numero para decidir quais desenhos a tinta ficaram alto demais.
-     */
-    edgeFade: 3,
   },
 
   /** CENA 8 — limpeza. A revelacao mesmo e a borda do papel descendo. */

@@ -162,6 +162,9 @@ export class Preloader {
     this.#orientation = isPortrait();
     this.#stageData = buildPreloaderStage(this.#root, {
       trailSteps: MOTION.variants.full.trailSteps,
+      // A preferencia e lida na montagem porque ela decide a ESTRUTURA: sem
+      // movimento, a figurinha que cola nem chega a criar as suas faixas.
+      reduced: prefersReducedMotion(),
     });
   }
 
@@ -198,18 +201,18 @@ export class Preloader {
       // execução partiria de onde a anterior parou.
       Object.assign(piece.data, piece.origem);
 
-      // A cena 7 esconde as pecas de tinta que a pilha deixou acima do papel.
-      piece.node.style.removeProperty('visibility');
-
       gsap.set(piece.inner, { x: 0, y: 0, rotation: piece.data.rot, scale: 1, opacity: 0 });
       gsap.set(piece.media, { x: 0, y: 0, rotation: 0, scale: 1 });
-      // A aba nasce FORA da árvore de pintura e só entra no instante em que
-      // aquele adesivo começa a colar (ver `entrance.js`). Cada aba carrega
-      // um `filter`, que promove o elemento a uma camada de composição
-      // própria: manter cento e poucas delas vivas durante a animação
-      // inteira custaria mais do que a animação toda.
-      piece.node.setAttribute('data-peeled', '');
-      if (piece.sticker) piece.sticker.style.removeProperty('--tz-peel');
+
+      // A figurinha volta a estar solta — e volta ASSENTADA, com as faixas
+      // fora da arvore de pintura. Elas so entram no instante em que aquela
+      // peca comeca a colar (ver `entrance.js`): manter dezenas delas vivas
+      // durante a animacao inteira custaria mais do que a animacao toda.
+      if (piece.peel) {
+        piece.peel.reset();
+        piece.peel.settle();
+        delete piece.peel.node.dataset.peeling;
+      }
     });
 
     prints.forEach((print) => {
@@ -246,8 +249,13 @@ export class Preloader {
 
     window.addEventListener('resize', this.#onResize, { passive: true });
 
+    // A preferencia de movimento agora decide ESTRUTURA, e nao so ritmo: sem
+    // movimento, as figurinhas nem criam as suas faixas. Mudar a preferencia
+    // com o palco montado exige remonta-lo — nunca durante uma transicao.
     this.#unwatchMotion = watchMotionPreference(() => {
-      // Nada a reconstruir: a decisao e lida no inicio de cada execucao.
+      if (this.#running) return;
+      this.#mountStage();
+      decodeImages(this.#root);
     });
   }
 }

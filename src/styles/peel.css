@@ -1,0 +1,175 @@
+/* =========================================================================
+   FIGURINHA QUE COLA
+
+   A arte e recortada em N faixas; cada faixa e um `<div>` com uma JANELA
+   FIXA sobre a mesma imagem. Quem move as faixas e `PeelSticker.js` — aqui
+   fica so o que nao muda: o enquadramento das janelas, a perspectiva e os
+   dois materiais (a frente impressa e o verso siliconado).
+
+   Regra da casa, valida tambem aqui: durante a animacao so mudam
+   `transform`, `filter` e `opacity`. Nenhuma janela e reposicionada, nenhuma
+   altura e recalculada.
+   ========================================================================= */
+
+.tz-peel {
+  position: relative;
+  display: block;
+  width: 100%;
+  /* A proporcao vem da arte (definida em JS). E ela que reserva a altura da
+     caixa sem que ninguem precise medir a imagem depois de carregada. */
+}
+
+/* --- A arte inteira -------------------------------------------------------
+   E o estado final: assim que a colagem termina, as N faixas saem de cena e
+   sobra esta imagem. A sombra de repouso mora aqui, e nao nas faixas — um
+   `drop-shadow` por faixa custaria N filtros por figurinha para desenhar a
+   mesma sombra. */
+.tz-peel__flat {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: var(--tz-drop-paper);
+}
+
+.tz-peel:not([data-settled]) .tz-peel__flat {
+  visibility: hidden;
+}
+
+.tz-peel[data-settled] .tz-peel__sheet,
+.tz-peel[data-settled] .tz-peel__cast {
+  display: none;
+}
+
+/* --- O olho ---------------------------------------------------------------
+   `perspective` (em px, escrita pelo componente a partir do tamanho real da
+   figurinha) e o que faz a faixa levantada ENCURTAR de verdade em vez de so
+   inclinar. Sem ela o enrolamento vira origami chapado.
+
+   Nao ha `preserve-3d`, e e de proposito: as faixas sao irmas, nao aninhadas,
+   entao a ordem de pintura do documento ja e a ordem de profundidade certa —
+   a ponta enrolada passa por cima do que ja esta colado. Com `preserve-3d`,
+   as faixas ainda deitadas (todas em z = 0, coplanares) disputariam
+   profundidade e piscariam. */
+.tz-peel__sheet {
+  position: absolute;
+  inset: 0;
+}
+
+/* O PONTO DE VISTA, e ele decide se o efeito le ou nao.
+   Com a camera exatamente de frente (`perspective-origin: 50% 50%`), uma
+   figurinha enrolando na direcao do observador so ENCURTA: o volume
+   desaparece no encurtamento e o que sobra parece um retangulo amassado.
+   Deslocando o ponto de fuga para ALEM da borda solta, a parte levantada se
+   projeta na direcao contraria — a ponta enrolada sobe por cima do que ja
+   esta colado, que e a silhueta que se reconhece como adesivo descolando.
+   A parte colada (z = 0) nao se move um pixel com isso. */
+.tz-peel[data-anchor='top'] .tz-peel__sheet {
+  perspective-origin: 50% 136%;
+}
+.tz-peel[data-anchor='bottom'] .tz-peel__sheet {
+  perspective-origin: 50% -36%;
+}
+.tz-peel[data-anchor='left'] .tz-peel__sheet {
+  perspective-origin: 136% 50%;
+}
+.tz-peel[data-anchor='right'] .tz-peel__sheet {
+  perspective-origin: -36% 50%;
+}
+
+/* --- Uma faixa ------------------------------------------------------------ */
+.tz-peel__band {
+  position: absolute;
+  background-image: var(--tz-peel-art);
+  background-size: var(--tz-band-size);
+  background-position: var(--tz-band-pos);
+  background-repeat: no-repeat;
+  /* `backface-visibility: hidden` NAO entra aqui: passado o meio-giro a faixa
+     esta de costas, e e justamente ai que ela mais importa — e a ponta
+     enrolada. Quem cobre a estampa espelhada e o verso (`__liner`), que entra
+     por opacidade e nao por descarte de face. */
+}
+
+/* Faixas horizontais: a colagem corre no eixo vertical. */
+.tz-peel[data-axis='y'] .tz-peel__band {
+  left: 0;
+  right: 0;
+  height: var(--tz-peel-band);
+}
+.tz-peel[data-anchor='top'] .tz-peel__band {
+  top: 0;
+}
+.tz-peel[data-anchor='bottom'] .tz-peel__band {
+  bottom: 0;
+}
+
+/* Faixas verticais: a colagem corre no eixo horizontal. */
+.tz-peel[data-axis='x'] .tz-peel__band {
+  top: 0;
+  bottom: 0;
+  width: var(--tz-peel-band);
+}
+.tz-peel[data-anchor='left'] .tz-peel__band {
+  left: 0;
+}
+.tz-peel[data-anchor='right'] .tz-peel__band {
+  right: 0;
+}
+
+/* --- O verso --------------------------------------------------------------
+   Passado o meio-giro, o que se ve de um adesivo levantado nao e a estampa: e
+   o papel siliconado do verso. Ele e uma cor chapada recortada pela MESMA
+   janela da faixa (as duas leem `--tz-band-*`), entao a silhueta e exata, sem
+   nenhum recorte extra de arte.
+
+   O `filter` de iluminacao vive na faixa, e alcanca o verso junto: os dois
+   lados do papel recebem a mesma luz, que e o que acontece com papel. */
+.tz-peel__liner {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--tz-peel-liner-hi) 0%,
+    var(--tz-peel-liner) 62%,
+    var(--tz-peel-liner-lo) 100%
+  );
+  mask-image: var(--tz-peel-art);
+  mask-size: var(--tz-band-size);
+  mask-position: var(--tz-band-pos);
+  mask-repeat: no-repeat;
+  -webkit-mask-image: var(--tz-peel-art);
+  -webkit-mask-size: var(--tz-band-size);
+  -webkit-mask-position: var(--tz-band-pos);
+  -webkit-mask-repeat: no-repeat;
+}
+
+/* --- A sombra projetada ---------------------------------------------------
+   A parte levantada projeta sombra na superficie; a parte colada nao tem
+   folga para projetar nada. Esta camada acompanha a dobra: anda com ela,
+   cresce com a altura e some quando a figurinha assenta.
+
+   E um gradiente radial, e nao um `blur`: desfoque de verdade custaria uma
+   passada de filtro por quadro, e o que se procura aqui e uma mancha macia —
+   um gradiente ja e macio por natureza. */
+.tz-peel__cast {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform-origin: 50% 50%;
+  background: radial-gradient(
+    56% 42% at 50% 50%,
+    rgba(58, 38, 26, 0.44) 0%,
+    rgba(58, 38, 26, 0.22) 46%,
+    rgba(58, 38, 26, 0) 74%
+  );
+}
+
+/* --- Estado de performance -----------------------------------------------
+   As promessas de camada so existem enquanto a colagem acontece: manter
+   dezenas de faixas promovidas depois que o efeito acabou seria pagar
+   memoria de GPU pelo resto da timeline. */
+.tz-peel[data-peeling] .tz-peel__band,
+.tz-peel[data-peeling] .tz-peel__cast {
+  will-change: transform, opacity;
+}

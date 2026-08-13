@@ -13,510 +13,472 @@
  * │ w          largura, em multiplos de `--tz-unit`
  * │ rot        rotacao final, em graus
  * │ layer      'back' | 'mid' | 'front' — profundidade e forca da sombra
- * │ blend      true = tinta sobre o papel (multiply, sem sombra)
+ * │ peel       borda por onde a figurinha e assentada ('top', 'left', …).
+ * │            Presente = a peca e COLADA (ver `PeelSticker.js`); ausente =
+ * │            a peca simplesmente cai com as outras.
  * │ from       'up' | 'down' | 'left' | 'right' | 'settle' — sabor da entrada
  * │ reactive   0..1.6 — o quanto estremece quando uma pegada passa perto
- * │ windBias   0..1.8 — a pressa com que parte no vento
- * │ exit       'left' | 'right' | 'up' — para onde sai
+ * │ windBias   0..1.8 — a pressa com que se solta na queda final
+ * │ exit       'left' | 'right' | 'up' — resquicio da saida em leque; hoje a
+ * │            saida e uma queda so, e o campo sobrevive como semente
  * │ rarity     1 = sempre presente; < 1 = probabilidade de aparecer
  * │ portrait   sobrescreve x/y/w/rot em telas verticais
  * │ hidePortrait  remove a peca em telas verticais
  * └────────────────────────────────────────────────────────────────────────
  *
- * SOBRE O MASCOTE: a pata quase nunca aparece. A marca dela na cena sao as
- * pegadas — ela ja passou. O adesivo so entra em uma fracao das execucoes
- * (`rarity`), meio escondido atras de outra peca, e e sempre o primeiro a
- * partir quando o vento comeca. Encontra-la e recompensa, nao rotina.
+ * ─── OS DOIS TEMPOS DA COLAGEM ───────────────────────────────────────────
+ *
+ * ATOS 1 e 2 sao SEIS figurinhas, e so elas: as maiores, as que carregam a
+ * marca. Cada uma e assentada na superficie com o efeito de colagem — dobra,
+ * perspectiva, sombra de contato, verso siliconado. Sao poucas de proposito:
+ * o gesto de colar so existe se der tempo de ver.
+ *
+ * ATO 3 e a inundacao. Dezenas de pecas caem do topo e empilham ate cobrir a
+ * tela. Nenhuma delas cola — elas chegam pela fisica.
+ *
+ * ─── SOBRE O MASCOTE ─────────────────────────────────────────────────────
+ *
+ * A pata quase nunca aparece por inteiro. A marca dela na cena sao as
+ * pegadas — ela ja passou. O adesivo do mascote de boina so entra em uma
+ * fracao das execucoes (`rarity`), e e sempre o primeiro a se soltar quando
+ * a colagem desaba. Encontra-lo e recompensa, nao rotina.
  */
 
 export const COLLAGE = [
-  // ── ATO 1 — silencio visual ────────────────────────────────────────────
+  // ══ ATO 1 — as tres primeiras, com tempo entre elas ═════════════════════
   {
-    id: 'nota-central',
-    asset: 'nota-teze',
+    id: 'quadro-teze',
+    asset: 'quadro-teze',
     act: 1,
-    x: 46,
-    y: 44,
-    w: 33,
+    x: 44,
+    y: 43,
+    w: 27,
     rot: -2.5,
     layer: 'mid',
+    peel: 'top',
     from: 'settle',
     reactive: 0.7,
     windBias: 0.75,
     exit: 'right',
-    portrait: { x: 50, y: 42, w: 62 },
+    portrait: { x: 50, y: 34, w: 54 },
   },
   {
-    id: 'fita-topo',
-    asset: 'fita-vichy',
+    id: 'madame-zaze',
+    asset: 'madame-zaze',
     act: 1,
-    x: 44,
-    y: 24,
-    w: 26,
-    rot: -3,
+    x: 21,
+    y: 70,
+    w: 30,
+    rot: -6,
     layer: 'front',
-    from: 'up',
-    reactive: 0.5,
-    windBias: 1.25,
-    exit: 'right',
-    portrait: { x: 46, y: 20, w: 52 },
+    peel: 'left',
+    from: 'left',
+    reactive: 1.1,
+    windBias: 1.2,
+    exit: 'left',
+    portrait: { x: 30, y: 74, w: 56 },
   },
   {
-    id: 'carimbo-centro',
-    asset: 'carimbo-paris',
+    id: 'oh-la-la',
+    asset: 'oh-la-la',
     act: 1,
-    x: 67,
-    y: 60,
-    w: 14,
-    rot: 9,
+    x: 73,
+    y: 26,
+    w: 23,
+    rot: 5,
     layer: 'front',
-    blend: true,
-    from: 'settle',
-    reactive: 0.9,
-    windBias: 0.6,
+    peel: 'right',
+    from: 'right',
+    reactive: 1,
+    windBias: 1.15,
     exit: 'right',
-    portrait: { x: 72, y: 56, w: 26 },
+    portrait: { x: 68, y: 16, w: 44 },
   },
 
-  // ── ATO 2 — a colagem ganha corpo ──────────────────────────────────────
+  // ══ ATO 2 — a colagem ganha corpo ══════════════════════════════════════
   {
-    id: 'recibo-esquerda',
-    asset: 'recibo',
+    id: 'quadro-mascote',
+    asset: 'quadro-mascote',
     act: 2,
-    x: 15,
-    y: 47,
-    w: 14,
-    rot: -8,
-    layer: 'front',
-    from: 'left',
-    reactive: 1.2,
-    windBias: 1.35,
+    x: 17,
+    y: 27,
+    w: 23,
+    rot: 4,
+    layer: 'mid',
+    peel: 'bottom',
+    from: 'up',
+    reactive: 0.6,
+    windBias: 0.8,
     exit: 'left',
-    portrait: { x: 17, y: 66, w: 28 },
+    portrait: { x: 24, y: 53, w: 42 },
   },
   {
-    id: 'bilhete',
-    asset: 'bilhete-embarque',
+    id: 'mascote-grande',
+    asset: 'mascote',
     act: 2,
-    x: 79,
-    y: 32,
-    w: 32,
-    rot: 4.5,
+    x: 74,
+    y: 62,
+    w: 21,
+    rot: -3,
+    layer: 'front',
+    peel: 'top',
+    from: 'down',
+    reactive: 0.9,
+    windBias: 1.3,
+    exit: 'right',
+    portrait: { x: 71, y: 62, w: 40 },
+  },
+  {
+    id: 'mascote-boina',
+    asset: 'mascote-boina',
+    act: 2,
+    x: 47,
+    y: 76,
+    w: 17,
+    rot: 6,
+    layer: 'front',
+    peel: 'left',
+    from: 'down',
+    reactive: 1.2,
+    // Sai primeiro, como quem tinha mesmo que ir.
+    windBias: 1.7,
+    exit: 'right',
+    rarity: 0.34,
+    portrait: { x: 46, y: 88, w: 34 },
+  },
+
+  // ══ ATO 3 — a inundacao ════════════════════════════════════════════════
+  // Nenhuma peca daqui cola: todas chegam caindo. O que se escreve aqui e
+  // apenas onde elas MORAM — a fisica decide onde param.
+  {
+    id: 'nota-expressao',
+    asset: 'nota-expressao',
+    act: 3,
+    x: 30,
+    y: 18,
+    w: 24,
+    rot: -3,
+    layer: 'mid',
+    from: 'down',
+    reactive: 0.8,
+    windBias: 0.85,
+    exit: 'left',
+    portrait: { x: 32, y: 20, w: 46 },
+  },
+  {
+    id: 'nota-sofisticada',
+    asset: 'nota-sofisticada',
+    act: 3,
+    x: 62,
+    y: 44,
+    w: 24,
+    rot: 2.5,
     layer: 'mid',
     from: 'right',
     reactive: 0.8,
-    windBias: 1.1,
-    exit: 'right',
-    portrait: { x: 50, y: 78, w: 50, rot: 6 },
-  },
-  {
-    id: 'polaroid',
-    asset: 'polaroid',
-    act: 2,
-    x: 25,
-    y: 74,
-    w: 21,
-    rot: 6,
-    layer: 'front',
-    from: 'down',
-    reactive: 1.4,
-    windBias: 0.85,
-    exit: 'left',
-    portrait: { x: 30, y: 20, w: 38, rot: -5 },
-  },
-  {
-    id: 'taca-baixo',
-    asset: 'taca',
-    act: 2,
-    x: 71,
-    y: 84,
-    w: 9.5,
-    rot: -5,
-    layer: 'mid',
-    blend: true,
-    from: 'up',
-    reactive: 1.5,
-    windBias: 1.05,
-    exit: 'right',
-    portrait: { x: 78, y: 36, w: 17 },
-  },
-  {
-    id: 'garrafa',
-    asset: 'garrafa',
-    act: 2,
-    x: 35,
-    y: 20,
-    w: 9,
-    rot: 3,
-    layer: 'mid',
-    blend: true,
-    from: 'up',
-    reactive: 0.6,
     windBias: 0.9,
-    exit: 'left',
-    portrait: { x: 24, y: 34, w: 18 },
-  },
-  {
-    id: 'passaporte',
-    asset: 'passaporte-selo',
-    act: 2,
-    x: 57,
-    y: 13,
-    w: 19,
-    rot: -10,
-    layer: 'back',
-    blend: true,
-    from: 'settle',
-    reactive: 0.4,
-    windBias: 0.5,
-    exit: 'up',
-    portrait: { x: 62, y: 10, w: 38 },
-  },
-  {
-    id: 'etiqueta',
-    asset: 'etiqueta',
-    act: 2,
-    x: 85,
-    y: 72,
-    w: 23,
-    rot: 8,
-    layer: 'front',
-    from: 'right',
-    reactive: 1.1,
-    windBias: 1.3,
     exit: 'right',
-    portrait: { x: 60, y: 92, w: 38 },
+    portrait: { x: 58, y: 44, w: 46 },
   },
   {
-    id: 'eiffel',
-    asset: 'eiffel',
-    act: 2,
-    x: 11,
-    y: 22,
-    w: 11,
-    rot: -4,
-    layer: 'back',
-    blend: true,
-    from: 'up',
-    reactive: 0.3,
-    windBias: 0.55,
-    exit: 'left',
-    hidePortrait: true,
-  },
-  {
-    id: 'retalho-baixo',
-    asset: 'retalho-vichy',
-    act: 2,
-    x: 47,
-    y: 89,
-    w: 13,
-    rot: 11,
-    layer: 'mid',
-    from: 'down',
-    reactive: 1.3,
-    windBias: 1.15,
-    exit: 'left',
-    portrait: { x: 22, y: 88, w: 26 },
-  },
-  {
-    id: 'selo-meio',
-    asset: 'selo-postal',
-    act: 2,
-    x: 30,
-    y: 63,
-    w: 11,
-    rot: -7,
-    layer: 'front',
-    from: 'settle',
-    reactive: 1.5,
-    windBias: 1.4,
-    exit: 'left',
-    portrait: { x: 26, y: 55, w: 22 },
-  },
-
-  // ── ATO 3 — o mural fecha as bordas ────────────────────────────────────
-  {
-    id: 'fita-azul-esq',
-    asset: 'fita-azul',
+    id: 'bilhete-zaze',
+    asset: 'bilhete-zaze',
     act: 3,
-    x: 4,
-    y: 48,
-    w: 17,
-    rot: -76,
-    layer: 'front',
-    from: 'left',
-    reactive: 0.2,
-    windBias: 1.5,
-    exit: 'left',
-    hidePortrait: true,
-  },
-  {
-    id: 'fita-azul-dir',
-    asset: 'fita-azul',
-    act: 3,
-    x: 96,
-    y: 30,
-    w: 15,
-    rot: 80,
-    layer: 'front',
-    from: 'right',
-    reactive: 0.2,
-    windBias: 1.5,
-    exit: 'right',
-    portrait: { x: 96, y: 46, w: 30 },
-  },
-  {
-    id: 'fita-rodape-esq',
-    asset: 'fita-vichy',
-    act: 3,
-    x: 11,
-    y: 95,
-    w: 24,
-    rot: 5,
-    layer: 'front',
-    from: 'down',
-    reactive: 0.4,
-    windBias: 1.45,
-    exit: 'left',
-    portrait: { x: 14, y: 97, w: 44 },
-  },
-  {
-    id: 'fita-rodape-dir',
-    asset: 'fita-vichy',
-    act: 3,
-    x: 89,
-    y: 91,
-    w: 21,
-    rot: -7,
-    layer: 'front',
-    from: 'down',
-    reactive: 0.4,
-    windBias: 1.4,
-    exit: 'right',
-    hidePortrait: true,
-  },
-  {
-    id: 'cartao-postal',
-    asset: 'cartao-postal',
-    act: 3,
-    x: 73,
-    y: 50,
-    w: 27,
+    x: 80,
+    y: 34,
+    w: 22,
     rot: -5,
     layer: 'mid',
     from: 'right',
     reactive: 0.9,
-    windBias: 0.95,
+    windBias: 1.05,
     exit: 'right',
-    portrait: { x: 52, y: 58, w: 46 },
+    portrait: { x: 70, y: 30, w: 44 },
   },
   {
-    id: 'tira-declaracao',
-    asset: 'tira-rasgada',
+    id: 'nota-original',
+    asset: 'nota-original',
     act: 3,
-    x: 28,
-    y: 56,
-    w: 28,
-    rot: 2.5,
-    layer: 'front',
+    x: 12,
+    y: 52,
+    w: 20,
+    rot: 6,
+    layer: 'mid',
     from: 'left',
     reactive: 1,
-    windBias: 1.2,
+    windBias: 1.1,
     exit: 'left',
-    portrait: { x: 44, y: 48, w: 54 },
+    portrait: { x: 22, y: 62, w: 40 },
   },
   {
-    id: 'chapeu',
-    asset: 'chapeu',
+    id: 'nota-excesso',
+    asset: 'nota-excesso',
     act: 3,
-    x: 19,
-    y: 8,
-    w: 15,
-    rot: -12,
+    x: 55,
+    y: 88,
+    w: 21,
+    rot: -4,
     layer: 'mid',
-    blend: true,
-    tint: 'palha',
-    from: 'up',
-    reactive: 0.5,
+    from: 'down',
+    reactive: 0.7,
     windBias: 0.8,
     exit: 'left',
-    portrait: { x: 20, y: 8, w: 30 },
+    hidePortrait: true,
+  },
+  {
+    id: 'recibo',
+    asset: 'recibo',
+    act: 3,
+    x: 8,
+    y: 82,
+    w: 12,
+    rot: -7,
+    layer: 'mid',
+    from: 'down',
+    reactive: 1.1,
+    windBias: 1,
+    exit: 'left',
+    portrait: { x: 12, y: 84, w: 24 },
+  },
+  {
+    id: 'bilhete-embarque',
+    asset: 'bilhete-embarque',
+    act: 3,
+    x: 90,
+    y: 72,
+    w: 13,
+    rot: 8,
+    layer: 'mid',
+    from: 'right',
+    reactive: 1,
+    windBias: 1.15,
+    exit: 'right',
+    portrait: { x: 84, y: 76, w: 26 },
+  },
+  {
+    id: 'pronunciamento',
+    asset: 'pronunciamento',
+    act: 3,
+    x: 33,
+    y: 58,
+    w: 15,
+    rot: 3,
+    layer: 'back',
+    from: 'up',
+    reactive: 0.5,
+    windBias: 0.7,
+    exit: 'left',
+    hidePortrait: true,
+  },
+  {
+    id: 'eiffel-papel',
+    asset: 'eiffel-papel',
+    act: 3,
+    x: 66,
+    y: 14,
+    w: 14,
+    rot: -6,
+    layer: 'back',
+    from: 'up',
+    reactive: 0.6,
+    windBias: 0.75,
+    exit: 'up',
+    portrait: { x: 74, y: 8, w: 26 },
+  },
+  {
+    id: 'medalhao',
+    asset: 'medalhao',
+    act: 3,
+    x: 88,
+    y: 12,
+    w: 16,
+    rot: 7,
+    layer: 'mid',
+    from: 'up',
+    reactive: 0.8,
+    windBias: 1.2,
+    exit: 'right',
+    hidePortrait: true,
+  },
+  {
+    id: 'taca-teze',
+    asset: 'taca-teze',
+    act: 3,
+    x: 6,
+    y: 24,
+    w: 9,
+    rot: -9,
+    layer: 'front',
+    from: 'left',
+    reactive: 1.3,
+    windBias: 1.35,
+    exit: 'left',
+    portrait: { x: 10, y: 30, w: 18 },
+  },
+  {
+    id: 'champanhe',
+    asset: 'champanhe',
+    act: 3,
+    x: 40,
+    y: 8,
+    w: 10,
+    rot: 12,
+    layer: 'front',
+    from: 'up',
+    reactive: 1.2,
+    windBias: 1.4,
+    exit: 'up',
+    portrait: { x: 42, y: 6, w: 20 },
+  },
+  {
+    id: 'croissant',
+    asset: 'croissant',
+    act: 3,
+    x: 24,
+    y: 40,
+    w: 13,
+    rot: -12,
+    layer: 'front',
+    from: 'left',
+    reactive: 1.4,
+    windBias: 1.25,
+    exit: 'left',
+    portrait: { x: 20, y: 42, w: 26 },
+  },
+  {
+    id: 'oculos',
+    asset: 'oculos',
+    act: 3,
+    x: 58,
+    y: 66,
+    w: 14,
+    rot: -8,
+    layer: 'front',
+    from: 'down',
+    reactive: 1.5,
+    windBias: 1.3,
+    exit: 'right',
+    portrait: { x: 62, y: 68, w: 28 },
   },
   {
     id: 'scarpins',
     asset: 'scarpins',
     act: 3,
-    x: 91,
-    y: 57,
-    w: 13,
-    rot: 12,
-    layer: 'mid',
-    blend: true,
+    x: 92,
+    y: 52,
+    w: 12,
+    rot: 10,
+    layer: 'front',
     from: 'right',
     reactive: 1.2,
-    windBias: 0.7,
+    windBias: 1.2,
     exit: 'right',
     hidePortrait: true,
   },
   {
-    id: 'buque',
-    asset: 'buque',
+    id: 'puro-suco',
+    asset: 'puro-suco',
     act: 3,
-    x: 6,
-    y: 79,
-    w: 15,
-    rot: -9,
-    layer: 'mid',
-    blend: true,
-    from: 'left',
-    reactive: 0.8,
-    windBias: 0.65,
+    x: 34,
+    y: 92,
+    w: 13,
+    rot: 6,
+    layer: 'front',
+    from: 'down',
+    reactive: 1.1,
+    windBias: 1.1,
     exit: 'left',
-    portrait: { x: 8, y: 74, w: 30 },
+    portrait: { x: 34, y: 94, w: 26 },
   },
   {
-    id: 'marca',
-    asset: 'marca-teze',
+    id: 'bandeira',
+    asset: 'bandeira',
     act: 3,
-    x: 53,
-    y: 68,
-    w: 22,
-    rot: -2,
+    x: 78,
+    y: 90,
+    w: 13,
+    rot: -5,
     layer: 'front',
+    from: 'down',
+    reactive: 1,
+    windBias: 1.05,
+    exit: 'right',
+    hidePortrait: true,
+  },
+  {
+    id: 'carimbo-centro',
+    asset: 'carimbo-paris',
+    act: 3,
+    x: 50,
+    y: 56,
+    w: 11,
+    rot: -14,
+    layer: 'mid',
     from: 'settle',
-    reactive: 0.6,
-    windBias: 0.35, // a marca resiste mais ao vento: e a ultima a partir
-    exit: 'up',
-    portrait: { x: 44, y: 66, w: 40 },
+    reactive: 0.9,
+    windBias: 0.65,
+    exit: 'right',
+    portrait: { x: 52, y: 56, w: 22 },
   },
   {
     id: 'selo-canto',
     asset: 'selo-postal',
     act: 3,
-    x: 93,
-    y: 9,
-    w: 9,
-    rot: 15,
-    layer: 'front',
+    x: 15,
+    y: 8,
+    w: 10,
+    rot: 8,
+    layer: 'mid',
     from: 'up',
     reactive: 0.7,
-    windBias: 1.5,
-    exit: 'right',
-    portrait: { x: 82, y: 26, w: 16 },
+    windBias: 0.9,
+    exit: 'up',
+    portrait: { x: 16, y: 8, w: 20 },
   },
   {
-    id: 'carimbo-topo',
-    asset: 'carimbo-paris',
+    id: 'eiffel-selo',
+    asset: 'eiffel',
     act: 3,
-    x: 40,
-    y: 5,
-    w: 12,
-    rot: -15,
-    layer: 'back',
-    blend: true,
-    from: 'settle',
-    reactive: 0.3,
-    windBias: 0.45,
-    exit: 'up',
+    x: 70,
+    y: 80,
+    w: 9,
+    rot: 4,
+    layer: 'mid',
+    from: 'down',
+    reactive: 0.9,
+    windBias: 1,
+    exit: 'right',
     hidePortrait: true,
   },
   {
-    id: 'recibo-rodape',
-    asset: 'recibo',
+    id: 'garrafa',
+    asset: 'garrafa',
     act: 3,
-    x: 66,
-    y: 93,
-    w: 11,
-    rot: 7,
+    x: 4,
+    y: 40,
+    w: 8,
+    rot: -6,
     layer: 'mid',
-    from: 'down',
-    reactive: 1.1,
-    windBias: 1.25,
-    exit: 'right',
+    from: 'left',
+    reactive: 1,
+    windBias: 1.1,
+    exit: 'left',
     hidePortrait: true,
   },
   {
     id: 'taca-canto',
     asset: 'taca',
     act: 3,
-    x: 86,
-    y: 15,
-    w: 8,
-    rot: 6,
-    layer: 'back',
-    blend: true,
-    from: 'up',
-    reactive: 0.5,
-    windBias: 1,
+    x: 96,
+    y: 30,
+    w: 7,
+    rot: 9,
+    layer: 'mid',
+    from: 'right',
+    reactive: 1.1,
+    windBias: 1.15,
     exit: 'right',
     hidePortrait: true,
-  },
-
-  // Pecas de preenchimento: fecham os vazios que sobram entre as pecas
-  // "narrativas" e dao ao mural a densidade de coisa acumulada com o tempo.
-  {
-    id: 'retalho-topo',
-    asset: 'retalho-vichy',
-    act: 3,
-    x: 68,
-    y: 19,
-    w: 10,
-    rot: -18,
-    layer: 'back',
-    from: 'up',
-    reactive: 0.4,
-    windBias: 1.2,
-    exit: 'right',
-    hidePortrait: true,
-  },
-  {
-    id: 'carimbo-esquerda',
-    asset: 'carimbo-paris',
-    act: 3,
-    x: 22,
-    y: 37,
-    w: 10,
-    rot: 21,
-    layer: 'back',
-    blend: true,
-    from: 'settle',
-    reactive: 0.4,
-    windBias: 0.5,
-    exit: 'left',
-    hidePortrait: true,
-  },
-  {
-    id: 'fita-azul-baixo',
-    asset: 'fita-azul',
-    act: 3,
-    x: 52,
-    y: 97,
-    w: 14,
-    rot: 4,
-    layer: 'front',
-    from: 'down',
-    reactive: 0.3,
-    windBias: 1.45,
-    exit: 'left',
-    hidePortrait: true,
-  },
-
-  // ── A visita rara ──────────────────────────────────────────────────────
-  {
-    id: 'mascote',
-    asset: 'mascote-recortado',
-    act: 3,
-    x: 79,
-    y: 79,
-    w: 17,
-    rot: 3.5,
-    layer: 'front',
-    from: 'down',
-    reactive: 0.9,
-    windBias: 1.7, // sai primeiro, como quem tinha mesmo que ir
-    exit: 'right',
-    rarity: 0.22,
-    portrait: { x: 76, y: 72, w: 34 },
   },
 ];
 
@@ -526,154 +488,21 @@ export const COLLAGE = [
  * Uma Bezier quadratica: o ponto de controle e o que deixa o caminho
  * "levemente torto". Reta seria mecanico; torto demais seria comico.
  */
-/**
- * CAMADA DE PREENCHIMENTO
- *
- * A composição acima é desenhada à mão: cada peça foi colocada onde faz
- * sentido narrativo. Ela sozinha, porém, deixa papel aparecendo — e a
- * referência pede o oposto: a tela **lotada**, sem nenhum fundo visível,
- * como uma parede tomada por adesivos ao longo de anos.
- *
- * Resolver isso à mão seria escrever cem objetos e mantê-los. Em vez disso,
- * esta camada é gerada sobre uma grade com desalinhamento controlado — o
- * suficiente para nunca parecer grade, denso o suficiente para não sobrar
- * buraco. A semente é fixa: a "bagunça" é sempre a mesma, e portanto
- * ajustável pelo olho.
- *
- * As peças de preenchimento ficam ATRÁS das peças narrativas e não projetam
- * sombra — em uma parede lotada ninguém vê a sombra de cada adesivo, e
- * oitenta filtros de sombra custariam caro à GPU sem nada em troca.
- */
-export const FILL = {
-  seed: 'mural-teze-2026',
-
-  /**
-   * Orçamento de densidade por capacidade do aparelho (ver
-   * `utils/deviceTier.js`). Cada peça em cena é um recálculo de estilo por
-   * quadro — em um celular intermediário a densidade máxima engasga, e em
-   * um desktop ela é justamente o que faz a animação.
-   *
-   * `peel: false` desliga o efeito de colagem apenas nas peças geradas; as
-   * narrativas continuam colando, porque são poucas e grandes — é nelas que
-   * o gesto se vê.
-   */
-  tiers: {
-    alta: { cols: 7, rows: 5, accent: 42, peel: true },
-    media: { cols: 6, rows: 4, accent: 26, peel: true },
-    baixa: { cols: 5, rows: 4, accent: 12, peel: false },
-  },
-
-  /** Transbordo além da tela, em %: as bordas precisam ficar cortadas. */
-  bleed: 10,
-
-  /** Assets que entram em `multiply` (tinta sobre o papel, sem recorte). */
-  blendPool: ['carimbo-paris', 'passaporte-selo', 'taca', 'garrafa', 'eiffel', 'scarpins', 'buque'],
-
-  /**
-   * BASE — quem realmente cobre a tela.
-   *
-   * Só peças que funcionam grandes e repetidas: fitas, retalhos de vichy,
-   * etiquetas. Distribuídas sobre uma grade com desalinhamento, em duas
-   * passadas — a segunda deslocada em meia célula, para que todo vão da
-   * primeira caia sob uma peça da segunda. É esta camada que garante
-   * "nenhum pixel de fundo à vista".
-   */
-  base: {
-    cols: 7,
-    rows: 5,
-    passes: 2,
-    /** Escape do centro da célula (0–1). Alto reabre buracos; baixo
-     *  deixa a grade aparecer. */
-    scatter: 0.32,
-    maxRotation: 24,
-    pool: [
-      'fita-vichy',
-      'fita-vichy',
-      'fita-vichy',
-      'fita-vichy',
-      'fita-vichy',
-      'fita-azul',
-      'fita-azul',
-      'fita-azul',
-      'retalho-vichy',
-      'retalho-vichy',
-      'retalho-vichy',
-      'retalho-vichy',
-      'retalho-vichy',
-      'etiqueta',
-      // A assinatura aparece pouco mesmo na parede: repetida, deixa de ser
-      // assinatura e vira padrão de fundo.
-      'marca-teze',
-    ],
-    portrait: { cols: 4, rows: 7 },
-  },
-
-  /**
-   * ACENTOS — o detalhe por cima.
-   *
-   * Selos, carimbos e desenhos a tinta, sempre pequenos. São eles que dão
-   * à parede o ar de coisa acumulada; grandes, virariam manchas e roubariam
-   * a leitura das peças narrativas.
-   */
-  accent: {
-    count: 42,
-    portraitCount: 32,
-    maxRotation: 32,
-    pool: [
-      'selo-postal',
-      'selo-postal',
-      'selo-postal',
-      'carimbo-paris',
-      'carimbo-paris',
-      'carimbo-paris',
-      'passaporte-selo',
-      'passaporte-selo',
-      'taca',
-      'garrafa',
-      'eiffel',
-      'chapeu',
-      'scarpins',
-      'buque',
-    ],
-  },
-
-  /**
-   * Escala natural de cada asset, em `--tz-unit` — [mínimo, máximo].
-   *
-   * Sem isto o gerador trata um carimbo circular e uma fita de dois palmos
-   * como a mesma coisa, e o carimbo vira um disco gigante no meio da tela.
-   * Cada peça tem o tamanho em que foi desenhada para ser lida.
-   */
-  sizes: {
-    'fita-vichy': [24, 40],
-    'fita-azul': [18, 32],
-    'retalho-vichy': [13, 23],
-    etiqueta: [17, 26],
-    'marca-teze': [17, 27],
-    'selo-postal': [8, 13],
-    'carimbo-paris': [8, 13],
-    'passaporte-selo': [11, 18],
-    taca: [6, 10],
-    garrafa: [6, 10],
-    eiffel: [8, 13],
-    chapeu: [10, 16],
-    scarpins: [8, 13],
-    buque: [10, 16],
-  },
-
-  /** Retrato tem menos largura por peça: tudo cresce em relação ao vmin. */
-  portraitScale: 1.75,
-};
-
 export const TRAIL = {
   from: { x: -8, y: 88 },
   control: { x: 40, y: 56 },
   to: { x: 110, y: 42 },
-  /** Largura de cada pegada, em `--tz-unit`. Discreta de proposito: e um
-   *  rastro, nao um carimbo de destaque. */
-  size: 3.4,
+  /**
+   * Largura de cada pegada, em `--tz-unit`.
+   *
+   * Cresceu junto com a arte oficial: sobre a parede de listras e xadrez, a
+   * pegada discreta da versao anterior simplesmente sumia. A tinta e um
+   * carimbo suave em `multiply` — para ler contra um fundo agitado, ela
+   * precisa de tamanho, nao de opacidade.
+   */
+  size: 5.4,
   /** Afastamento lateral entre pe esquerdo e direito. */
-  stride: 2.4,
+  stride: 3.2,
   /** Variacao angular por passo, em graus. */
   wobble: 9,
   /**
@@ -688,7 +517,153 @@ export const TRAIL = {
     from: { x: -10, y: 92 },
     control: { x: 48, y: 62 },
     to: { x: 112, y: 28 },
-    size: 6.4,
-    stride: 4,
+    size: 9,
+    stride: 5,
   },
+};
+
+/**
+ * CAMADA DE PREENCHIMENTO
+ *
+ * A composicao acima e desenhada a mao: cada peca foi colocada onde faz
+ * sentido narrativo. Ela sozinha, porem, deixa papel aparecendo — e a
+ * referencia pede o oposto: a tela **lotada**, sem nenhum fundo visivel,
+ * como uma parede tomada por adesivos ao longo de anos.
+ *
+ * Resolver isso a mao seria escrever cem objetos e mante-los. Em vez disso,
+ * esta camada e gerada sobre uma grade com desalinhamento controlado — o
+ * suficiente para nunca parecer grade, denso o suficiente para nao sobrar
+ * buraco. A semente e fixa: a "bagunca" e sempre a mesma, e portanto
+ * ajustavel pelo olho.
+ *
+ * As pecas de preenchimento ficam ATRAS das narrativas e nao projetam
+ * sombra — em uma parede lotada ninguem ve a sombra de cada adesivo, e
+ * oitenta filtros de sombra custariam caro a GPU sem nada em troca.
+ */
+export const FILL = {
+  seed: 'mural-teze-2026',
+
+  /**
+   * Orcamento de densidade por capacidade do aparelho (ver
+   * `utils/deviceTier.js`). Cada peca em cena e um recalculo de estilo por
+   * quadro — em um celular intermediario a densidade maxima engasga, e em
+   * um desktop ela e justamente o que faz a animacao.
+   */
+  tiers: {
+    alta: { cols: 7, rows: 5, accent: 42 },
+    media: { cols: 6, rows: 4, accent: 26 },
+    baixa: { cols: 5, rows: 4, accent: 12 },
+  },
+
+  /** Transbordo alem da tela, em %: as bordas precisam ficar cortadas. */
+  bleed: 10,
+
+  /**
+   * BASE — quem realmente cobre a tela.
+   *
+   * So pecas que funcionam grandes e repetidas: as padronagens (xadrez e
+   * listras) e os dois quadros de moldura. Distribuidas sobre uma grade com
+   * desalinhamento, em duas passadas — a segunda deslocada em meia celula,
+   * para que todo vao da primeira caia sob uma peca da segunda. E esta
+   * camada que garante "nenhum pixel de fundo a vista".
+   */
+  base: {
+    cols: 7,
+    rows: 5,
+    passes: 2,
+    /** Escape do centro da celula (0–1). Alto reabre buracos; baixo
+     *  deixa a grade aparecer. */
+    scatter: 0.32,
+    maxRotation: 24,
+    /**
+     * A proporcao entre as padronagens E direcao de arte, nao sorteio.
+     *
+     * O vermelho e a cor da marca; o azul e o acento. Com pesos iguais a
+     * parede fica azul — as duas padronagens azuis (xadrez e listra) somam
+     * mais area que a vermelha sozinha, e o xadrez ainda e o mais saturado
+     * dos tres. Dois tercos de vermelho e papel devolvem a leitura.
+     */
+    pool: [
+      'listras-vermelha',
+      'listras-vermelha',
+      'listras-vermelha',
+      'listras-vermelha',
+      'xadrez-azul',
+      'xadrez-azul',
+      'listras-azul',
+      'listras-azul',
+      // Os quadros aparecem pouco mesmo na parede: repetidos, deixam de ser
+      // assinatura e viram padrao de fundo.
+      'quadro-teze',
+      'quadro-teze',
+      'quadro-mascote',
+      'quadro-mascote',
+    ],
+    portrait: { cols: 4, rows: 7 },
+  },
+
+  /**
+   * ACENTOS — o detalhe por cima.
+   *
+   * Selos, carimbos e desenhos pequenos, sempre miudos. Sao eles que dao a
+   * parede o ar de coisa acumulada; grandes, virariam manchas e roubariam a
+   * leitura das pecas narrativas.
+   */
+  accent: {
+    count: 42,
+    portraitCount: 32,
+    maxRotation: 32,
+    pool: [
+      'selo-postal',
+      'selo-postal',
+      'selo-postal',
+      'carimbo-paris',
+      'carimbo-paris',
+      'carimbo-paris',
+      'taca',
+      'garrafa',
+      'eiffel',
+      'croissant',
+      'oculos',
+      'scarpins',
+      'champanhe',
+      'taca-teze',
+      'puro-suco',
+      'bandeira',
+      'medalhao',
+    ],
+  },
+
+  /**
+   * Escala natural de cada asset, em `--tz-unit` — [minimo, maximo].
+   *
+   * Sem isto o gerador trata um carimbo circular e uma fita de dois palmos
+   * como a mesma coisa, e o carimbo vira um disco gigante no meio da tela.
+   * Cada peca tem o tamanho em que foi desenhada para ser lida.
+   */
+  sizes: {
+    // As padronagens sao RETALHOS, nao paredes: grandes demais elas param de
+    // parecer papel picado e viram papel de parede.
+    'xadrez-azul': [20, 34],
+    'listras-azul': [14, 24],
+    'listras-vermelha': [14, 24],
+    'quadro-teze': [13, 21],
+    'quadro-mascote': [13, 21],
+    'selo-postal': [8, 13],
+    'carimbo-paris': [8, 13],
+    medalhao: [10, 15],
+    taca: [5, 8],
+    garrafa: [6, 9],
+    eiffel: [7, 11],
+    croissant: [9, 14],
+    oculos: [9, 14],
+    scarpins: [8, 12],
+    champanhe: [6, 10],
+    'taca-teze': [6, 10],
+    'puro-suco': [9, 14],
+    bandeira: [9, 14],
+  },
+
+  /** Retrato: a tela e mais estreita, e as pecas precisam crescer junto. */
+  portraitScale: 1.35,
 };

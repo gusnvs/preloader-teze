@@ -31,7 +31,7 @@ npm run dev        # http://localhost:5173
 | `npm run dev`     | servidor de desenvolvimento + painel de direção de arte      |
 | `npm run build`   | build de produção em `dist/`                                 |
 | `npm run preview` | serve o build de produção                                    |
-| `npm run assets`  | reprocessa as ilustrações de `src/assets/raw` → `collage/`   |
+| `npm run assets`  | reprocessa a arte de `src/assets/oficial` → `collage/`       |
 
 O roteador usa History API, então o dev server e o preview já estão
 configurados com fallback de SPA (`appType: 'spa'` em `vite.config.js`).
@@ -46,8 +46,8 @@ e a linha do tempo principal só sabe a ordem em que entram.
 
 | # | Cena          | Arquivo                     | O que acontece                                                        |
 | - | ------------- | --------------------------- | --------------------------------------------------------------------- |
-| 1 | Despertar     | `scene-01-despertar.js`     | O papel aparece antes de qualquer peça. Três peças pousam, devagar.   |
-| 2 | Reunião       | `scene-02-reuniao.js`       | A colagem ganha corpo, do centro para fora.                           |
+| 1 | Despertar     | `scene-01-despertar.js`     | O papel aparece antes de tudo. **Três figurinhas são coladas**, uma a uma. |
+| 2 | Reunião       | `scene-02-reuniao.js`       | Mais três, com a mão já solta. A colagem ganha corpo.                 |
 | 3 | A chuva       | `scene-03-mural.js`         | **Os adesivos caem e empilham** até cobrir a tela. Física, não tween. |
 | 4 | Rastro        | `scene-04-rastro.js`        | Pegadas atravessam a tela numa curva torta, alternando os pés.        |
 | 5 | Reação        | `scene-05-reacao.js`        | As peças perto de cada pegada estremecem e voltam.                    |
@@ -58,46 +58,97 @@ e a linha do tempo principal só sabe a ordem em que entram.
 Há uma nona: `scene-reduzida.js`, para `prefers-reduced-motion` — descrita
 mais abaixo.
 
-### O adesivo sendo colado
+### A figurinha sendo colada
 
-Referência: o efeito de peel do cravburgers.shop. A ideia é simples e a
-execução tem uma só sutileza — **a arte é desenhada duas vezes**:
+O efeito de abertura, e o mais caro de acertar. **Seis figurinhas** — as
+maiores da marca — são assentadas na superfície uma a uma, com dobra,
+perspectiva, sombra de contato e verso siliconado.
 
-```html
-<div class="tz-sticker" style="--tz-peel: 0.6">
-  <div class="tz-sticker__main">…</div>   <!-- o trecho já colado -->
-  <div class="tz-sticker__flap">…</div>   <!-- a aba ainda solta -->
-</div>
+O critério não é técnico, é de leitura. Assistindo sem explicação, a reação
+tem que ser *"colaram uma figurinha ali"*. Se for *"apareceu uma imagem"*, ou
+*"girou um cartão"*, está errado — e as três coisas são fáceis de confundir
+num still.
+
+**Como funciona.** A arte é recortada em N faixas. Cada faixa é um `<div>`
+com uma **janela fixa** sobre a mesma imagem (`background-position`), e cada
+uma recebe a rotação acumulada da sua posição na curva:
+
+```
+[colada][colada][dobra][erguida][erguida]   →  p = 0.4
+[colada][colada][colada][dobra][erguida]    →  p = 0.6
 ```
 
-A aba é a **mesma arte**, espelhada exatamente sobre a linha da dobra e
-achatada para cinza — porque o que se enxerga de uma aba levantada é o verso
-do papel, não a estampa. A geometria inteira sai de uma variável, lida pelo
-CSS em três lugares: os dois recortes e a origem do espelhamento. Animar UM
-número move a dobra e faz a aba encolher até sumir.
+Regiões diferentes em estados diferentes ao mesmo tempo é o efeito inteiro.
+Uma `rotateX` na imagem toda seria um cartão rígido girando.
 
-O adesivo cola **de baixo para cima** — a borda de baixo encosta primeiro e a
-aba pende sobre a parte já colada, que é o que acontece quando se assenta um
-adesivo com o polegar. E a colagem termina um pouco ANTES do movimento parar:
-o polegar assenta o papel enquanto a mão ainda está acomodando a peça.
+A curva não é um vinco: o ângulo cresce ao longo do que sobrou, medido em
+**fração do que sobrou** — por isso o enrolamento encolhe junto com a parte
+solta em vez de manter o mesmo raio até o fim. A matemática está separada do
+DOM em `animations/peel/peelGeometry.js`, justamente para poder ser discutida
+sem abrir uma linha de CSS.
 
-Duas diferenças em relação à original, ambas deliberadas:
+**Três decisões que decidiram o resultado.**
 
-**O cinza é achatado, não dessaturado.** `brightness(0)` zera o RGB
-preservando o alpha — sobra a silhueta em preto — e `invert()` a levanta para
-um cinza constante. É o equivalente em CSS do `feFlood` + `feComposite
-in="SourceAlpha"` que a referência faz em SVG. `grayscale()` sozinho não
-serviria: as peças da Tezê já são de papel claro, e dessaturar deixaria o
-verso branco, invisível contra o mural.
+*O ângulo máximo separa colar de descolar.* Passando bem de 90° a ponta tomba
+para trás e cobre o que já está colado: é o gesto de **arrancar** um adesivo,
+e visto de frente vira uma tábua cinza deitada sobre a arte. Perto de 80° a
+figurinha fica **erguida**, apoiada na linha de contato, com a estampa virada
+para quem olha — a mão segurando o adesivo antes de assentar. O verso só
+aparece no fim, numa lasquinha.
 
-**Sem os filtros de iluminação.** A original usa `feSpecularLighting` para o
-brilho do vinil. Com mais de cem adesivos em cena, cem filtros de iluminação
-custariam a animação inteira.
+*O ponto de fuga não fica no centro.* Com a câmera exatamente de frente, uma
+figurinha enrolando na direção do observador só ENCURTA: o volume some dentro
+do próprio encurtamento. Deslocando `perspective-origin` para além da borda
+solta, a parte levantada se projeta ao contrário e a ponta sobe por cima do
+que já está colado. A parte colada (z = 0) não se move um pixel com isso.
 
-Nem todo mundo descola. Só peças **recortadas** (os desenhos a tinta estão
-impressos NO papel, não colados SOBRE ele — não têm verso) e só acima de
-14 unidades de largura: abaixo disso a aba tem poucos pixels e ninguém a
-enxerga, mas custa exatamente o mesmo que num adesivo grande.
+*A luz precisa saber qual lado da folha está olhando.* O mesmo cosseno para
+as duas faces achata o rolo — passado o meio-giro toda faixa bate no piso do
+sombreado e a ponta vira um cinza só. A face de trás tem a normal invertida,
+e é ela que, virada para cima no fim do giro, fica mais clara de todas.
+
+**Por que CSS 3D, e não SVG, Canvas ou WebGL.**
+
+| Técnica | Por que não |
+| ------- | ----------- |
+| SVG (mask/clipPath) | máscara controla *quanto* da arte aparece, não curva superfície nem gera perspectiva |
+| Canvas 2D | repinta a figurinha inteira por quadro, em 2× de DPR, na CPU — e ainda vêm 130 adesivos caindo depois |
+| WebGL | resolveria com malha e shader, e traria Three.js, um contexto de GPU e um segundo pipeline de render para 1,5 s de efeito |
+
+O CSS 3D entrega o que interessa: a perspectiva é do navegador (a faixa longe
+encurta de verdade), a composição é da GPU, e durante a animação só mudam
+`transform`, `filter` e `opacity` — nenhuma pintura, nenhum layout.
+
+**A API.** Um número, de 0 a 1:
+
+```js
+const peel = createPeelSticker({ src, ratio, direction: 'left', slices: 16 });
+gsap.to(peel, { progress: 1, duration: 0.96, ease: 'tz.press' });
+```
+
+`progress` é uma propriedade comum — o GSAP escreve nela como escreveria em
+qualquer objeto. Sem `onUpdate`, sem proxy. E escrever um valor menor que 1
+**desfaz o assentamento sozinho**: `seek()` suprime callbacks, então um
+`reset()` chamado por `tl.call()` simplesmente não acontece quando a timeline
+é arrastada — a figurinha ficaria colada no meio da própria colagem.
+
+**Direções.** As quatro bordas (`top`, `bottom`, `left`, `right`) são a mesma
+conta vista de outro ângulo; a conversão é uma rotação no plano feita pelo
+próprio CSS. As diagonais são apelidos da borda dominante: faixa diagonal não
+existe (a janela de uma faixa é um recorte retangular da arte), e torcer o
+eixo de rotação abre fendas em V entre as faixas — medido, ~11 px com 12
+faixas. A inclinação vem de graça de outro lugar: **a peça já é girada na
+composição**, e uma figurinha com `rot: -6` colando de cima para baixo já
+chega com a dobra inclinada.
+
+**Terminada a colagem**, `settle()` troca as N faixas por uma única imagem. O
+resto da timeline — a chuva, as pegadas, a queda — não deve pagar por um
+efeito que já acabou.
+
+> **`?lab=peel`** abre o laboratório: uma figurinha, grande, com o progresso
+> na mão. `&strip=1` mostra seis progressos lado a lado — julgar a progressão
+> vendo a animação rodar é impossível, o olho não guarda o quadro anterior.
+> `&art=` e `&dir=` trocam arte e borda.
 
 ### A tela lotada
 
@@ -128,18 +179,24 @@ A implementação está em `physics/stickerDrop.js`, sobre `matter-js`.
 **Duas naturezas de peça.** Escrever cem objetos à mão seria impossível de
 manter, e cem peças aleatórias não teriam composição nenhuma. Então:
 
-| Camada          | Origem                    | Papel                                        | Nº  |
-| --------------- | ------------------------- | -------------------------------------------- | --- |
-| Narrativa       | `COLLAGE` (à mão)         | conteúdo legível: a nota, o bilhete, o recibo | 31  |
-| Base            | `FILL.base` (gerada)      | cobertura: fitas e retalhos grandes           | 70  |
-| Acentos         | `FILL.accent` (gerada)    | detalhe: selos, carimbos, desenhos pequenos   | 42  |
+| Camada          | Origem                    | Papel                                          | Nº  |
+| --------------- | ------------------------- | ---------------------------------------------- | --- |
+| Figurinhas      | `COLLAGE`, atos 1–2       | as seis que são **coladas** — a marca           | 6   |
+| Narrativa       | `COLLAGE`, ato 3          | conteúdo legível: a nota, o bilhete, o recibo   | 22  |
+| Base            | `FILL.base` (gerada)      | cobertura: retalhos de xadrez e listra          | 70  |
+| Acentos         | `FILL.accent` (gerada)    | detalhe: selos, carimbos, desenhos pequenos     | 42  |
 
 A regra que segura a elegância com a tela cheia: **o preenchimento é
 textura, a camada narrativa é conteúdo.** Peças com texto miúdo legível
 — recibo, cartão de embarque, polaroid — ficam fora do sorteio: repetidas
-cinco vezes elas leem como documento duplicado, um erro. Fitas, retalhos de
-vichy e carimbos repetem à vontade, porque é assim que uma parede de
+cinco vezes elas leem como documento duplicado, um erro. Retalhos de xadrez,
+listras e carimbos repetem à vontade, porque é assim que uma parede de
 adesivos real se comporta.
+
+A proporção entre as padronagens é direção de arte, não sorteio: o vermelho é
+a cor da marca e o azul é o acento. Com pesos iguais a parede fica **azul** —
+as duas padronagens azuis somam mais área que a vermelha sozinha, e o xadrez
+ainda é o mais saturado dos três.
 
 Cada asset tem sua **escala natural** (`FILL.sizes`). Sem isso o gerador
 trata um carimbo circular e uma fita de dois palmos como a mesma coisa, e o
@@ -226,16 +283,10 @@ Três consequências que valem registrar:
 - **Não há fade.** Papel some porque saiu do quadro. Cada peça viaja uma
   distância que a põe fora da tela antes do fim do próprio tween.
 
-O detalhe caro dessa cena está no CSS: **o papel é 30% mais alto que a tela.**
-A pilha da cena 3 termina acima do quadro, e essa sobra é o que mantém
-superfície embaixo dos desenhos a tinta durante a descida. Ela tem um preço —
-o papel precisa percorrê-la antes de descobrir o primeiro pixel — então é a
-menor que cobre a maior peça de tinta. As que ficaram inteiramente acima dela
-são escondidas no início da cena: estão fora do quadro de qualquer jeito, e
-deixá-las cair traria um retângulo branco atravessando a página.
-
 A borda de ataque do papel leva três unidades de dissolução (`mask-image`).
-Sem isso, uma linha reta atravessando a tela leria como cortina de teatro.
+Sem isso, uma linha reta atravessando a tela leria como cortina de teatro — e
+é só para essa dissolução caber fora do quadro que o papel é 10% mais alto
+que a tela.
 
 ### Densidade adaptativa
 
@@ -250,14 +301,15 @@ número de adesivos é uma função do aparelho, decidida uma vez no
 carregamento (`utils/deviceTier.js`), a partir de `hardwareConcurrency`,
 `deviceMemory` e `connection.saveData`:
 
-| Nível   | Peças | Com peel | CPU 4× — quadros > 20 ms | p95     |
-| ------- | ----- | -------- | ------------------------ | ------- |
-| `alta`  | 143   | 83       | 9,1%                     | 25,6 ms |
-| `media` | 117   | 72       | 5,3%                     | 21,4 ms |
-| `baixa` | 93    | 15       | **1,7%**                 | 15,6 ms |
+| Nível   | Peças | Faixas por figurinha | CPU 4× — quadros > 20 ms |
+| ------- | ----- | -------------------- | ------------------------ |
+| `alta`  | 140   | 16                   | 6% (colagem) · 11% (queda) |
+| `media` | 114   | 12                   | —                        |
+| `baixa` | 90    | 8                    | —                        |
 
-No nível `baixa` o preenchimento não descola — só as peças narrativas, que
-são poucas e grandes, e é nelas que o gesto realmente se lê.
+O nível decide duas coisas: quantos adesivos caem na chuva e em quantas
+faixas cada figurinha é recortada para colar. Menos faixas = curva mais
+facetada, mesmo gesto.
 
 Os sinais são grosseiros de propósito: não medem GPU nem a carga do momento,
 mas separam um desktop de um celular intermediário, que é a decisão que
@@ -266,18 +318,17 @@ precisa ser tomada. Para conferir os três sem trocar de aparelho:
 
 ### Sobre a pata
 
-Ela quase nunca aparece. A presença dela na cena são as **pegadas** — ela já
-passou. O adesivo do mascote entra em apenas **22% das execuções**
-(`rarity: 0.22` em `collage.config.js`), meio escondido atrás da etiqueta, e
-e é sempre o **primeiro** a se soltar quando a colagem desaba (`windBias: 1.7`).
+Ela quase nunca aparece por inteiro. A presença dela na cena são as
+**pegadas** — ela já passou. O adesivo da Madame de boina entra em apenas
+**34% das execuções** (`rarity` em `collage.config.js`) e é sempre o
+**primeiro** a se soltar quando a colagem desaba (`windBias: 1.7`).
 Encontrá-la é recompensa, não rotina.
 
-> Nota sobre a identidade: as referências enviadas mostram a mascote como
-> uma galinha de vichy. O briefing fala em pato. A ilustração gerada é um
-> **pato** com o vestido xadrez, chapéu de palha, pérolas e scarpins pretos —
-> e as pegadas são de pata palmípede. Se a leitura correta for galinha,
-> troque `mascote-recortado` e `pegada` em `src/assets/raw/` e rode
-> `npm run assets`: nada mais no projeto precisa mudar.
+> A arte é a oficial da marca (`src/assets/oficial/`), com uma exceção: a
+> **pegada**. A cartela não traz uma, e o rastro é narrativa da animação, não
+> da marca — então ela continua sendo a desenhada para o laboratório. É
+> também a única peça em fundo branco, aplicada em `multiply`. Substituindo
+> `pegada.png` e rodando `npm run assets`, nada mais precisa mudar.
 
 ---
 
@@ -319,7 +370,7 @@ src/
 ├── components/
 │   ├── PreloaderStage.js        monta o DOM uma vez e reaproveita
 │   ├── CollagePiece.js          uma peça de papel
-│   ├── StickerPeel.js           o adesivo sendo colado (main + aba)
+│   ├── PeelSticker.js           a figurinha que cola (faixas + verso + sombra)
 │   ├── FillLayer.js             gera a densidade (base + acentos)
 │   └── FootprintTrail.js        geometria da trilha (Bézier + tangente)
 ├── pages/                       as duas páginas de demonstração
@@ -327,9 +378,9 @@ src/
 ├── utils/                       router · math · dom · viewport · assets ·
 │                                deviceTier · motionPreference · devtools
 └── assets/
-    ├── raw/                     ilustrações originais (fonte, versionadas)
-    ├── collage/                 WebP otimizado (gerado por `npm run assets`)
-    └── svg/                     peças de papel desenhadas à mão
+    ├── oficial/                 a arte da marca (fonte, versionada)
+    ├── collage/                 WebP + `manifesto.json` (`npm run assets`)
+    └── _legado/                 a arte do protótipo, fora do bundle
 ```
 
 ### As três camadas de transformação
@@ -415,12 +466,16 @@ para `style.transform`, sem passar pelo GSAP a cada propriedade; e corpos que
 já assentaram **dormem** e param de ser simulados.
 
 Vale registrar como o gargalo anterior foi encontrado, porque a intuição
-errou três vezes seguidas. Suspeitei do peel, dos filtros da aba e das três
-camadas de `mix-blend-mode` em tela cheia. Medindo uma a uma: o peel custava
-~2,4 pontos percentuais, os blends ~1, os filtros praticamente nada. O custo
-era **animar 143 elementos por quadro pelo GSAP** — recálculo de estilo, que
+errou três vezes seguidas. Suspeitei do peel, dos filtros e das camadas de
+`mix-blend-mode` em tela cheia. Medindo uma a uma: nenhuma delas era o custo.
+Era **animar 143 elementos por quadro pelo GSAP** — recálculo de estilo, que
 nenhuma micro-otimização de pintura resolve. Daí a densidade adaptativa; e
 daí, também, o ganho ao trocar cem tweens por uma simulação.
+
+A colagem das seis figurinhas, medida com a CPU 4× estrangulada, custa 6% de
+quadros acima de 20 ms — abaixo da chuva e da queda. São ~160 elementos, mas
+só dois ou três estão sendo assentados ao mesmo tempo, e o que muda neles é
+`transform` e `filter`: trabalho de compositor, não de pintura.
 
 As decisões que sustentam isso:
 
@@ -434,11 +489,11 @@ As decisões que sustentam isso:
   promove o elemento a uma camada de composição própria; cem delas
   custariam memória de GPU sem ganho nenhum, porque em uma parede lotada
   ninguém vê a sombra de cada adesivo — o que dá profundidade é a própria
-  sobreposição. Só as 31 peças narrativas têm sombra.
-- **A aba do adesivo fica fora da árvore de pintura** até o instante em que
-  aquele adesivo começa a colar, e sai de novo quando termina. Cada aba
-  carrega um `filter`, e manter cento e poucas vivas durante a animação
-  inteira custaria mais do que a animação toda.
+  sobreposição. Só as peças narrativas têm sombra.
+- **As faixas da figurinha ficam fora da árvore de pintura** até o instante
+  em que ela começa a colar, e saem de novo quando termina (`settle()`).
+  Cada faixa em movimento carrega um `filter` de iluminação: mantê-las vivas
+  durante a animação inteira custaria mais do que a animação toda.
 - **`will-change` fica em UMA das três camadas**, não em duas. Promover
   `__inner` e `__media` ao mesmo tempo, com mais de cem peças, dobra o número
   de camadas de composição e passa a custar mais do que economiza.
@@ -453,11 +508,13 @@ As decisões que sustentam isso:
 - **O "respiro" da cena 3 é uma transformação, não cento e nove** —
   aplicado ao mural inteiro.
 - **A queda da cena 7 é resolvida pelo `Physics2DPlugin`**: uma equação só
-  produz as ~109 trajetórias, e o papel inteiro (com todos os desenhos a
-  tinta) sai em **um único tween** — não em trinta.
+  produz as ~130 trajetórias.
+- **A colagem sai de cena quando termina.** `settle()` troca as N faixas de
+  cada figurinha por uma única imagem: as seis somam ~160 elementos enquanto
+  estão sendo assentadas, e zero depois disso.
 
-Peso do build: **48 kB de JS gzipado** (21 kB app + 27 kB GSAP), 2.6 kB de
-CSS, ~466 kB de imagens WebP. As ilustrações originais somavam 12.5 MB —
+Peso do build: **73 kB de JS gzipado** (19 app + 27 GSAP + 27 física), 3,1 kB
+de CSS, ~1,4 MB de imagens WebP. A arte oficial somava 120 MB em PNG —
 `npm run assets` apara, redimensiona e converte.
 
 ---
@@ -542,12 +599,18 @@ GSAP 3.15 (core, CustomEase, CustomWiggle, Physics2DPlugin, GSDevTools) ·
 matter-js 0.20 (a chuva de adesivos) · Vite 7 · sharp (pipeline de assets).
 Tipografia: Bodoni Moda, Courier Prime, Nothing You Could Do.
 
-Peso do build: **77 kB gzipados de JS** (23 app + 27 GSAP + 27 física),
-2,9 kB de CSS, ~466 kB de imagens WebP. A física fica em um chunk próprio
+Peso do build: **73 kB gzipados de JS** (19 app + 27 GSAP + 27 física),
+3,1 kB de CSS, ~1,4 MB de imagens WebP. A física fica em um chunk próprio
 (`fisica-*.js`): só a cena 3 a usa, e isolá-la deixa visível o que ela custa.
+
+Arte: a cartela oficial da Tezê (`src/assets/oficial/`), incluindo a paleta,
+lida dela e não aproximada. A única peça de fora é a pegada — a cartela não
+traz uma.
 
 Referências estudadas: o efeito de peel do `cravburgers.shop` e o screensaver
 do `warmnfuzzy.tv`. Nenhum código foi copiado — as duas técnicas foram
 inspecionadas em execução, entendidas e reimplementadas aqui, com as
-adaptações que a identidade da Tezê exige (o verso cinza achatado em vez de
-dessaturado, a rotação travada por causa da tipografia).
+adaptações que a identidade da Tezê exige. A colagem, em particular, não usa
+a técnica da referência (a arte espelhada e achatada para cinza): ela é uma
+cadeia de faixas em perspectiva real, porque a aba espelhada não curva, não
+encurta e não recebe luz.

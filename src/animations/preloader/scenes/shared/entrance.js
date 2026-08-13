@@ -1,59 +1,59 @@
 /**
- * Gramática de entrada compartilhada pelas cenas 1, 2 e 3.
+ * Gramatica de entrada compartilhada pelas cenas 1 e 2.
  *
- * As três cenas contam a mesma ação — um adesivo encontra a parede —
- * mudando só a intensidade e o ritmo. Manter o gesto em um lugar só garante
- * que a colagem inteira pareça feita pela mesma mão, e faz qualquer ajuste
- * de direção valer para os três atos de uma vez.
+ * As duas cenas contam a mesma acao — uma figurinha e assentada na parede —
+ * mudando so a intensidade e o ritmo. Manter o gesto em um lugar so garante
+ * que a colagem inteira pareca feita pela mesma mao, e faz qualquer ajuste
+ * de direcao valer para os dois atos de uma vez.
  *
- * O gesto tem duas partes que acontecem juntas:
+ * O gesto tem tres partes, e a ordem entre elas e o efeito inteiro:
  *
- *   1. o adesivo SOBE — vem de baixo, de fora do seu lugar;
- *   2. o adesivo COLA — a aba levantada assenta de baixo para cima,
- *      comandada por `--tz-peel` (ver `preloader.css`).
+ *   1. a figurinha APARECE ja levantada — nao ha fade de imagem, ha um
+ *      objeto que ja estava na mao. O clarao curto de opacidade existe so
+ *      para o primeiro quadro nao ser um corte seco;
  *
- * A colagem termina um pouco ANTES do movimento parar. É de propósito: o
- * polegar assenta o papel enquanto a mão ainda está acomodando a peça, e
- * inverter essa ordem faz o adesivo parecer um decalque que só apareceu.
+ *   2. a figurinha COLA: a linha de contato atravessa a arte enquanto a
+ *      parte ainda solta continua curvada no ar. E a `PeelSticker` quem faz
+ *      isso; daqui sai apenas o progresso, de 0 a 1;
+ *
+ *   3. a MAO ACOMODA: um resto de rotacao e de escala que se resolve junto,
+ *      curto e quase imperceptivel. Sem ele a peca parece impressa no lugar;
+ *      com ele, parece ter sido posta ali por alguem.
+ *
+ * A acomodacao termina DEPOIS da colagem, e nao antes: o polegar solta o
+ * papel e a mao ainda ajeita a peca por um instante.
  */
 
 import { gsap } from 'gsap';
 
-/** Vetor de origem por sabor de entrada, em unidades de composição. */
+/** Vetor de origem por sabor de entrada, em unidades de composicao. */
 const ORIGIN = {
   up: (d) => ({ x: 0, y: -d }),
   down: (d) => ({ x: 0, y: d }),
-  left: (d) => ({ x: -d * 1.6, y: -d * 0.35 }),
-  right: (d) => ({ x: d * 1.6, y: -d * 0.35 }),
-  settle: (d) => ({ x: 0, y: -d * 0.35 }),
+  left: (d) => ({ x: -d * 1.4, y: -d * 0.3 }),
+  right: (d) => ({ x: d * 1.4, y: -d * 0.3 }),
+  settle: (d) => ({ x: 0, y: -d * 0.3 }),
 };
 
 /**
- * Constrói a entrada de uma peça.
+ * Constroi a entrada de uma peca.
  *
- * @param {object} piece  peça criada por `createCollagePiece`
- * @param {object} cfg    bloco de configuração da cena (awaken/gather/mural)
+ * @param {object} piece  peca criada por `createCollagePiece`
+ * @param {object} cfg    bloco de configuracao da cena (awaken/gather)
  * @param {object} stage  medidas congeladas do palco
  * @returns {gsap.core.Timeline}
  */
 export function entranceFrom(piece, cfg, stage) {
-  const { data, inner, media, sticker, node } = piece;
+  const { data, inner, media, peel, node } = piece;
   const { variation } = data;
 
-  const distance = cfg.riseDistance * variation.windJitter;
-  const origin = (ORIGIN[data.from] ?? ORIGIN.settle)(distance);
-
-  // Viés de subida: mesmo as peças que entram pelos lados chegam DE BAIXO.
-  // Sem isto a colagem não "enche", ela pisca — metade das peças descendo
-  // do topo cancela a leitura de maré que a cena inteira depende.
-  origin.y += distance * (cfg.riseBias ?? 0);
-
-  // A peça chega girada além do ângulo final e "assenta" nele — o papel
-  // encontra o lugar, não aparece nele.
-  const rotationFrom =
-    data.rot + cfg.rotationOffset * variation.rotOffsetSign + variation.rotJitter;
-
   const tl = gsap.timeline();
+
+  // Deslocamento curto: a peca chega quase no lugar. Ela nao voa ate a
+  // parede — ela e POSTA na parede, e o que sobra e o acerto de mao.
+  const distance = cfg.approach * variation.windJitter;
+  const origin = (ORIGIN[data.from] ?? ORIGIN.settle)(distance);
+  const rotationFrom = data.rot + cfg.rotationOffset * variation.rotOffsetSign + variation.rotJitter;
 
   tl.fromTo(
     inner,
@@ -70,43 +70,42 @@ export function entranceFrom(piece, cfg, stage) {
       rotation: data.rot,
       scale: 1,
       opacity: 1,
-      duration: cfg.duration,
+      duration: cfg.duration * 1.12,
       ease: cfg.ease,
       force3D: true,
     },
     0,
   );
 
-  // A opacidade resolve antes do movimento: papel não aparece aos poucos
-  // enquanto voa, ele já está lá e vai se acomodando.
-  tl.to(inner, { opacity: 1, duration: cfg.duration * 0.3, ease: 'tz.veil' }, 0);
+  // A opacidade resolve quase de imediato: papel nao aparece aos poucos
+  // enquanto e colado, ele ja esta la.
+  tl.to(inner, { opacity: 1, duration: cfg.duration * 0.16, ease: 'none' }, 0);
 
-  // Camada de reação zerada e explícita — a cena 5 conta com ela limpa.
+  // Camada de reacao zerada e explicita — a cena 5 conta com ela limpa.
   tl.set(media, { rotation: 0, y: 0, scale: 1 }, 0);
 
-  // --- A colagem ---------------------------------------------------------
-  if (sticker && cfg.peel) {
-    const peelFrom = cfg.peel.from * variation.windJitter;
-
-    // `attr: { ...: null }` do GSAP não REMOVE o atributo — e um
-    // `data-peeled` sobrevivente da execução anterior deixa a aba com
-    // `display: none` antes mesmo de ela ter chance de aparecer.
-    tl.call(() => node.removeAttribute('data-peeled'), null, 0);
-
+  // --- A colagem ----------------------------------------------------------
+  if (peel) {
+    // `peel.progress` e uma propriedade comum: o GSAP escreve nela como
+    // escreveria em qualquer objeto, e a figurinha se redesenha sozinha.
+    // Nenhum `onUpdate`, nenhum proxy, nenhum callback de preparo — a
+    // propria propriedade sabe se levantar de novo (ver `PeelSticker.js`).
     tl.fromTo(
-      sticker,
-      { '--tz-peel': Math.min(peelFrom, 0.95) },
+      peel,
+      { progress: 0 },
       {
-        '--tz-peel': 0,
-        duration: cfg.duration * cfg.peel.durationRatio,
-        ease: cfg.peel.ease,
+        progress: 1,
+        duration: cfg.duration,
+        ease: cfg.pressEase ?? 'tz.press',
       },
-      cfg.duration * cfg.peel.delayRatio,
+      cfg.duration * (cfg.pressDelay ?? 0),
     );
 
-    // Colado: a aba sai da árvore de pintura. Sem isto, uma centena de
-    // filtros de escala de cinza continuaria custando depois da cena.
-    tl.set(node, { attr: { 'data-peeled': '' } }, cfg.duration * 1.02);
+    // Colada: as faixas saem de cena e sobra uma imagem so. O resto da
+    // timeline — a chuva, as pegadas, a queda — nao deve pagar por um efeito
+    // que ja terminou. Se este callback for perdido num arraste, o que se
+    // perde e a economia; a imagem e a mesma.
+    tl.call(() => peel.settle(), null, cfg.duration * 1.04);
   }
 
   return tl;

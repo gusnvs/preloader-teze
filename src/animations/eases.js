@@ -6,6 +6,7 @@
  *
  *   tz.settle   papel que cai e assenta — chega rapido, acomoda devagar
  *   tz.stamp    carimbo — impacto seco, micro-recuo, repouso
+ *   tz.press    polegar colando um adesivo — hesita, corre, assenta longo
  *   tz.breeze   inicio de vento — hesita antes de convencer
  *   tz.gust     rajada — sai acelerando, sem volta
  *   tz.veil     luz — abre lento, fecha limpo
@@ -40,6 +41,15 @@ export function registerEases() {
 
   // Rajada: comeca lento e nunca mais desacelera.
   CustomEase.create('tz.gust', 'M0,0 C0.34,0 0.52,0.06 0.66,0.24 C0.82,0.46 0.94,0.8 1,1');
+
+  // Polegar assentando um adesivo: hesita no primeiro contato (a cola ainda
+  // esta pegando), corre pelo meio e desacelera longo no fim, quando so falta
+  // a ponta. Nao e um `power2.inOut` — a saida e bem mais longa que a entrada,
+  // porque a ultima lasquinha e sempre a mais demorada.
+  CustomEase.create(
+    'tz.press',
+    'M0,0 C0.16,0 0.26,0.1 0.38,0.38 C0.5,0.66 0.62,0.92 0.74,0.98 C0.84,1.004 0.92,1 1,1',
+  );
 
   // Luz/veu: entrada suave, saida limpa, sem overshoot.
   CustomEase.create('tz.veil', 'M0,0 C0.26,0.02 0.2,1 1,1');

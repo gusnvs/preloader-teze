@@ -9,21 +9,14 @@
  * revelacao:
  *
  *   O PAPEL vai primeiro. O fundo pintado despenca inteiro, e a borda de
- *   cima dele descendo e o que descobre a pagina. Com ele vao os desenhos a
- *   tinta — eles estao impressos NO papel, nao colados SOBRE ele.
+ *   cima dele descendo e o que descobre a pagina.
  *
- *   OS ADESIVOS ficam para tras. Cada um se solta quando a borda do papel
- *   passa por ele, e cai mais devagar (menos massa, mais ar). O resultado e
- *   uma chuva de recortes tombando sobre a pagina ja visivel — que e a unica
+ *   OS ADESIVOS ficam para tras. Cada um se solta numa onda que corre de cima
+ *   para baixo e cai mais devagar (menos massa, mais ar). O resultado e uma
+ *   chuva de recortes tombando sobre a pagina ja visivel — que e a unica
  *   parte da transicao que o olho realmente segue.
  *
- * Tres notas de implementacao:
- *
- *   · o papel e a tinta entram no MESMO tween. Nao e economia, e a unica
- *     forma de garantir zero movimento relativo entre os dois: um desenho a
- *     tinta que se adiantasse meio pixel apareceria com o retangulo branco
- *     do arquivo, porque e o papel que ele multiplica (ver a nota sobre
- *     `mix-blend-mode` em `preloader.css`);
+ * Duas notas de implementacao:
  *
  *   · nao ha `ease`. O `Physics2DPlugin` integra sobre o TEMPO do tween, e
  *     nao sobre a curva — qualquer ease aqui distorceria o relogio da
@@ -63,19 +56,18 @@ export function createSceneQueda({ pieces, refs, motion, stage }) {
   /** Tempo que a mesma gravidade leva para cobrir um percurso maior. */
   const tempoPara = (segundos, referencia, percurso) => segundos * Math.sqrt(percurso / referencia);
 
-  // --- O papel, e a tinta impressa nele ------------------------------------
+  // --- O papel -------------------------------------------------------------
   //
-  // O papel e MAIS ALTO que a tela (ver `--- Fundo de papel` em
-  // `preloader.css`): a sobra de cima e o que mantem os desenhos a tinta com
-  // superficie embaixo durante a queda. Ele so esta fora quando percorreu a
-  // propria altura — medida lida do layout, para que o numero nao precise ser
+  // O papel e um pouco MAIS ALTO que a tela (ver `--- Fundo de papel` em
+  // `preloader.css`): a sobra existe para que a borda de ataque dissolvida
+  // comece fora do quadro. Ele so esta fora quando percorreu a propria
+  // altura — medida lida do layout, para que o numero nao precise ser
   // repetido aqui.
   const alturaDoPapel = refs.veil.offsetHeight;
   const tempoDoPapel = cfg.duration * cfg.paperRatio;
-  const tinta = pieces.filter((peca) => peca.data.blend);
 
   tl.to(
-    [refs.veil, refs.grain, ...tinta.map((peca) => peca.inner)],
+    [refs.veil, refs.grain],
     {
       physics2D: {
         velocity: 0,
@@ -88,24 +80,6 @@ export function createSceneQueda({ pieces, refs, motion, stage }) {
     },
     0,
   );
-
-  // A tinta que ficou ACIMA do papel sai de cena antes de comecar.
-  //
-  // A folga do papel cobre a maior peca de tinta, entao uma peca acima da
-  // borda dele esta necessariamente fora do quadro tambem — esconde-la nao
-  // tira nada de ninguem. Deixa-la cair, sim: ela entraria pelo topo sem
-  // papel embaixo, e viraria um retangulo branco atravessando a pagina nova.
-  // Le tudo primeiro, escreve depois: intercalar `getBoundingClientRect` com
-  // mudanca de estilo forcaria um recalculo por peca, e sao quase quarenta.
-  tl.add(() => {
-    const bordaDoPapel = refs.veil.getBoundingClientRect().top + stage.u(cfg.edgeFade);
-    const altasDemais = tinta.filter(
-      (peca) => peca.inner.getBoundingClientRect().top < bordaDoPapel,
-    );
-    altasDemais.forEach((peca) => {
-      peca.node.style.visibility = 'hidden';
-    });
-  }, 0);
 
   // --- Os adesivos ---------------------------------------------------------
   const maiorPeca = pieces.reduce((maior, peca) => Math.max(maior, peca.media.offsetHeight), 0);

@@ -1,0 +1,134 @@
+{
+  "bandeira": {
+    "w": 440,
+    "h": 312
+  },
+  "bilhete-embarque": {
+    "w": 358,
+    "h": 720
+  },
+  "bilhete-zaze": {
+    "w": 720,
+    "h": 561
+  },
+  "carimbo-paris": {
+    "w": 392,
+    "h": 440
+  },
+  "champanhe": {
+    "w": 289,
+    "h": 440
+  },
+  "croissant": {
+    "w": 440,
+    "h": 298
+  },
+  "eiffel": {
+    "w": 234,
+    "h": 440
+  },
+  "eiffel-papel": {
+    "w": 424,
+    "h": 720
+  },
+  "garrafa": {
+    "w": 195,
+    "h": 440
+  },
+  "listras-azul": {
+    "w": 565,
+    "h": 620
+  },
+  "listras-vermelha": {
+    "w": 565,
+    "h": 620
+  },
+  "madame-zaze": {
+    "w": 1000,
+    "h": 516
+  },
+  "mascote": {
+    "w": 692,
+    "h": 1000
+  },
+  "mascote-boina": {
+    "w": 798,
+    "h": 1000
+  },
+  "medalhao": {
+    "w": 571,
+    "h": 720
+  },
+  "nota-excesso": {
+    "w": 720,
+    "h": 461
+  },
+  "nota-expressao": {
+    "w": 720,
+    "h": 378
+  },
+  "nota-original": {
+    "w": 720,
+    "h": 414
+  },
+  "nota-sofisticada": {
+    "w": 720,
+    "h": 378
+  },
+  "oculos": {
+    "w": 440,
+    "h": 133
+  },
+  "oh-la-la": {
+    "w": 1000,
+    "h": 833
+  },
+  "pegada": {
+    "w": 168,
+    "h": 260
+  },
+  "pronunciamento": {
+    "w": 468,
+    "h": 720
+  },
+  "puro-suco": {
+    "w": 440,
+    "h": 319
+  },
+  "quadro-mascote": {
+    "w": 996,
+    "h": 1000
+  },
+  "quadro-teze": {
+    "w": 997,
+    "h": 1000
+  },
+  "recibo": {
+    "w": 278,
+    "h": 720
+  },
+  "scarpins": {
+    "w": 440,
+    "h": 291
+  },
+  "selo-postal": {
+    "w": 355,
+    "h": 440
+  },
+  "taca": {
+    "w": 161,
+    "h": 440
+  },
+  "taca-teze": {
+    "w": 226,
+    "h": 440
+  },
+  "textura-papel": {
+    "w": 900,
+    "h": 426
+  },
+  "xadrez-azul": {
+    "w": 620,
+    "h": 288
+  }
+}
