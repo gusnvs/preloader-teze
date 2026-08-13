@@ -269,6 +269,14 @@ segundo depois** da primeira. O intervalo é o que separa "duas patas" de "uma
 pata com o dobro de pegadas": tempo de ler o primeiro caminho como um caminho
 antes de o segundo existir.
 
+As duas vão em **sentidos opostos**: a da esquerda desce para o rodapé, a da
+direita sobe e sai pelo topo. Duas patas indo para o mesmo lado leem como uma
+só, cortada ao meio; em sentidos contrários, leem como duas.
+
+Inverter o sentido é trocar `from` por `to` — a curva é a mesma, percorrida ao
+contrário — e a orientação se resolve sozinha: os dedos seguem a tangente do
+caminho, e a tangente inverteu junto.
+
 Cada pegada carrega o `delay` da sua trilha, então a cena que as anima não
 precisa saber que existe mais de um caminho — ela lê o instante de cada passo
 e obedece. Acrescentar uma terceira pata é escrever um objeto em `paths`.
