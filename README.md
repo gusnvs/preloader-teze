@@ -183,8 +183,8 @@ manter, e cem peças aleatórias não teriam composição nenhuma. Então:
 | --------------- | ------------------------- | ---------------------------------------------- | --- |
 | Figurinhas      | `COLLAGE`, atos 1–2       | as seis que são **coladas** — a marca           | 6   |
 | Narrativa       | `COLLAGE`, ato 3          | conteúdo legível: a nota, o bilhete, o recibo   | 22  |
-| Base            | `FILL.base` (gerada)      | cobertura: retalhos de xadrez e listra          | 70  |
-| Acentos         | `FILL.accent` (gerada)    | detalhe: selos, carimbos, desenhos pequenos     | 42  |
+| Base            | `FILL.base` (gerada)      | cobertura: papel escrito, quadros, padronagem   | 80  |
+| Acentos         | `FILL.accent` (gerada)    | detalhe: selos, carimbos, desenhos pequenos     | 54  |
 
 A regra que segura a elegância com a tela cheia: **o preenchimento é
 textura, a camada narrativa é conteúdo.** Peças com texto miúdo legível
@@ -193,10 +193,21 @@ cinco vezes elas leem como documento duplicado, um erro. Retalhos de xadrez,
 listras e carimbos repetem à vontade, porque é assim que uma parede de
 adesivos real se comporta.
 
-A proporção entre as padronagens é direção de arte, não sorteio: o vermelho é
-a cor da marca e o azul é o acento. Com pesos iguais a parede fica **azul** —
-as duas padronagens azuis somam mais área que a vermelha sozinha, e o xadrez
-ainda é o mais saturado dos três.
+**A padronagem é fundo, não conteúdo.** Na primeira versão o sorteio da base
+era só xadrez e listra, e a parede virou papel de parede: a arte da marca
+sumia dentro da própria repetição. Hoje elas ocupam menos de um terço do
+sorteio, e o resto é desenho — bilhete, recibo, nota, quadro. A troca custou
+cobertura (peça recortada cobre menos que um retângulo de padrão), e foi paga
+com uma coluna a mais na grade e peças ~12% maiores.
+
+Cada peça aparece **~3 vezes** na parede (80 peças / 20 casas). É o limite:
+acima disso um bilhete com texto legível lê como documento duplicado; abaixo,
+sobra buraco.
+
+E o sorteio tem **memória curta**: as últimas 4 escolhas ficam de fora da
+próxima. Sorteio uniforme puro produz vizinhos iguais o tempo todo, e dois
+bilhetes idênticos encostados não leem como acaso — leem como bug. No total
+cada peça continua saindo o mesmo tanto; ela só não sai duas vezes seguidas.
 
 Cada asset tem sua **escala natural** (`FILL.sizes`). Sem isso o gerador
 trata um carimbo circular e uma fita de dois palmos como a mesma coisa, e o
@@ -325,11 +336,16 @@ número de adesivos é uma função do aparelho, decidida uma vez no
 carregamento (`utils/deviceTier.js`), a partir de `hardwareConcurrency`,
 `deviceMemory` e `connection.saveData`:
 
-| Nível   | Peças | Faixas por figurinha | CPU 4× — quadros > 20 ms |
-| ------- | ----- | -------------------- | ------------------------ |
-| `alta`  | 140   | 16                   | 6% (colagem) · 11% (queda) |
-| `media` | 114   | 12                   | —                        |
-| `baixa` | 90    | 8                    | —                        |
+| Nível   | Peças | Faixas por figurinha | CPU 4× — quadros > 20 ms   |
+| ------- | ----- | -------------------- | -------------------------- |
+| `alta`  | 162   | 16                   | 13% (colagem) · 31% (queda) |
+| `media` | 106   | 12                   | —                          |
+| `baixa` | 84    | 8                    | —                          |
+
+Sem estrangulamento, em 144 Hz: **6,9 ms de mediana e zero quadros perdidos**
+na colagem e na chuva; três quadros acima de 20 ms na queda inteira. O nível
+`alta` é generoso de propósito — quem não aguenta cai para `media` antes de
+qualquer quadro ser perdido.
 
 O nível decide duas coisas: quantos adesivos caem na chuva e em quantas
 faixas cada figurinha é recortada para colar. Menos faixas = curva mais

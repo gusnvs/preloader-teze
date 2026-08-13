@@ -583,13 +583,19 @@ export const FILL = {
    * um desktop ela e justamente o que faz a animacao.
    */
   tiers: {
-    alta: { cols: 7, rows: 5, accent: 42 },
-    media: { cols: 6, rows: 4, accent: 26 },
-    baixa: { cols: 5, rows: 4, accent: 12 },
+    alta: { cols: 8, rows: 5, accent: 54 },
+    media: { cols: 6, rows: 4, accent: 30 },
+    baixa: { cols: 5, rows: 4, accent: 16 },
   },
 
-  /** Transbordo alem da tela, em %: as bordas precisam ficar cortadas. */
-  bleed: 10,
+  /**
+   * Transbordo alem da tela, em %: as bordas precisam ficar cortadas.
+   *
+   * E tambem o que enche as margens. A grade comeca em `-bleed` e termina em
+   * `100 + bleed`; com pouco transbordo, a primeira e a ultima coluna caem
+   * dentro do quadro e sobra uma faixa rala colada em cada borda.
+   */
+  bleed: 14,
 
   /**
    * BASE — quem realmente cobre a tela.
@@ -601,7 +607,12 @@ export const FILL = {
    * camada que garante "nenhum pixel de fundo a vista".
    */
   base: {
-    cols: 7,
+    /**
+     * Oito colunas, e nao sete: a variedade custou cobertura. Trocar
+     * padronagem por desenho encheu a parede de peca pequena, e peca pequena
+     * deixa vao — a grade precisou de mais uma coluna para fechar de novo.
+     */
+    cols: 8,
     rows: 5,
     passes: 2,
     /** Escape do centro da celula (0–1). Alto reabre buracos; baixo
@@ -609,28 +620,40 @@ export const FILL = {
     scatter: 0.32,
     maxRotation: 24,
     /**
-     * A proporcao entre as padronagens E direcao de arte, nao sorteio.
+     * A PADRONAGEM E FUNDO, NAO CONTEUDO.
      *
-     * O vermelho e a cor da marca; o azul e o acento. Com pesos iguais a
-     * parede fica azul — as duas padronagens azuis (xadrez e listra) somam
-     * mais area que a vermelha sozinha, e o xadrez ainda e o mais saturado
-     * dos tres. Dois tercos de vermelho e papel devolvem a leitura.
+     * Primeira versao: o sorteio era so xadrez e listra, e a parede virou
+     * papel de parede — a arte da marca sumia dentro da propria repeticao.
+     * Aqui elas ocupam menos de um terco do sorteio, e o resto e desenho.
+     *
+     * Cada peca aparece ~3 vezes na parede (70 pecas / 20 casas). E o
+     * limite: acima disso um bilhete com texto legivel le como documento
+     * duplicado — um erro —, e abaixo disso sobra buraco.
      */
     pool: [
-      'listras-vermelha',
-      'listras-vermelha',
+      // Fundo: o que fecha os vaos entre os desenhos.
       'listras-vermelha',
       'listras-vermelha',
       'xadrez-azul',
       'xadrez-azul',
       'listras-azul',
       'listras-azul',
-      // Os quadros aparecem pouco mesmo na parede: repetidos, deixam de ser
-      // assinatura e viram padrao de fundo.
+      // Os quadros da marca — a assinatura da parede.
       'quadro-teze',
       'quadro-teze',
       'quadro-mascote',
       'quadro-mascote',
+      // Papel escrito: e o que da a parede o ar de coisa acumulada.
+      'nota-expressao',
+      'nota-sofisticada',
+      'nota-original',
+      'nota-excesso',
+      'bilhete-zaze',
+      'pronunciamento',
+      'eiffel-papel',
+      'medalhao',
+      'bilhete-embarque',
+      'recibo',
     ],
     portrait: { cols: 4, rows: 7 },
   },
@@ -643,9 +666,17 @@ export const FILL = {
    * leitura das pecas narrativas.
    */
   accent: {
-    count: 42,
-    portraitCount: 32,
+    count: 54,
+    portraitCount: 40,
     maxRotation: 32,
+    /**
+     * Aqui entra TUDO o que e pequeno — e quanto mais variado, melhor: sao
+     * os acentos que fazem a parede parecer acumulada ao longo de anos, e
+     * repeticao demais de um mesmo desenho denuncia o gerador.
+     *
+     * Selo e carimbo pesam mais que os outros de proposito: sao os unicos
+     * que uma parede real repete a exaustao sem parecer erro.
+     */
     pool: [
       'selo-postal',
       'selo-postal',
@@ -654,16 +685,21 @@ export const FILL = {
       'carimbo-paris',
       'carimbo-paris',
       'taca',
+      'taca-teze',
       'garrafa',
+      'champanhe',
       'eiffel',
       'croissant',
       'oculos',
       'scarpins',
-      'champanhe',
-      'taca-teze',
       'puro-suco',
       'bandeira',
+      'bandeira',
       'medalhao',
+      // As frases da marca tambem se repetem na parede — pequenas, viram
+      // acento; grandes, roubariam a leitura das figurinhas dos atos 1 e 2.
+      'madame-zaze',
+      'oh-la-la',
     ],
   },
 
@@ -677,14 +713,29 @@ export const FILL = {
   sizes: {
     // As padronagens sao RETALHOS, nao paredes: grandes demais elas param de
     // parecer papel picado e viram papel de parede.
-    'xadrez-azul': [20, 34],
-    'listras-azul': [14, 24],
-    'listras-vermelha': [14, 24],
-    'quadro-teze': [13, 21],
-    'quadro-mascote': [13, 21],
+    'xadrez-azul': [22, 37],
+    'listras-azul': [15, 26],
+    'listras-vermelha': [15, 26],
+    'quadro-teze': [14, 23],
+    'quadro-mascote': [14, 23],
+
+    // Papel escrito. Largo o bastante para cobrir, pequeno o bastante para o
+    // texto virar textura — ler a mesma frase quatro vezes na parede seria
+    // pior do que nao le-la nenhuma.
+    'nota-expressao': [23, 34],
+    'nota-sofisticada': [23, 34],
+    'nota-original': [21, 31],
+    'nota-excesso': [20, 30],
+    'bilhete-zaze': [19, 28],
+    pronunciamento: [13, 20],
+    'eiffel-papel': [13, 20],
+
+    // Miudos.
+    medalhao: [10, 15],
     'selo-postal': [8, 13],
     'carimbo-paris': [8, 13],
-    medalhao: [10, 15],
+    recibo: [7, 11],
+    'bilhete-embarque': [8, 12],
     taca: [5, 8],
     garrafa: [6, 9],
     eiffel: [7, 11],
@@ -695,6 +746,8 @@ export const FILL = {
     'taca-teze': [6, 10],
     'puro-suco': [9, 14],
     bandeira: [9, 14],
+    'madame-zaze': [11, 17],
+    'oh-la-la': [10, 15],
   },
 
   /** Retrato: a tela e mais estreita, e as pecas precisam crescer junto. */

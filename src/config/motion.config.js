@@ -121,19 +121,34 @@ export const MOTION = {
        * parede fica densa (peças se sobrepondo) ou cheia de frestas (peças
        * apenas encostadas). Abaixo de ~0,5 a pilha desmorona.
        */
-      colliderScale: 0.6,
+      colliderScale: 0.56,
 
       /** Onde e quando cada adesivo nasce. */
       spawnHeight: 2.6, // múltiplos da própria altura, acima do quadro
-      spawnJitterX: 0.14, // fração da largura do palco
+      /**
+       * Dispersão horizontal do ponto de soltura, em fração da largura.
+       *
+       * Alto demais e a peça esquece onde deveria cair: a composição é
+       * desenhada com as bordas cobertas, e 14% de largura são ~180 px de
+       * deriva — o bastante para a coluna da esquerda inteira acabar no
+       * meio da tela e a margem ficar rala.
+       */
+      spawnJitterX: 0.09,
       spawnWindow: 0.35, // dispersão aleatória do instante de soltura, em s
       spawnStagger: 0.009, // avanço por peça, em s
       /** As peças narrativas caem depois, para pousar POR CIMA da pilha. */
       narrativeDelay: 0.55,
 
-      /** Sangramento das bordas: a pilha continua além do quadro. */
+      /**
+       * Sangramento das bordas: a pilha continua além do quadro.
+       *
+       * `wallBleed` NEGATIVO empurra as paredes para FORA da tela. Positivo,
+       * como estava, elas prendem a pilha para dentro e sobra uma faixa rala
+       * de cada lado — a peça encostada na parede tem o corpo (60% do
+       * desenho) parado a 40 px da borda, e é a borda que aparece vazia.
+       */
       floorBleed: 26,
-      wallBleed: 40,
+      wallBleed: -30,
 
       /** Estabilidade x custo. */
       positionIterations: 6,

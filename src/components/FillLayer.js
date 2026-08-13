@@ -35,6 +35,31 @@ function larguraDe(fill, asset, jitter, escala) {
   return +(jitter.range(min, max) * escala).toFixed(2);
 }
 
+/**
+ * Sorteia um asset EVITANDO os ultimos que sairam.
+ *
+ * Sorteio uniforme puro produz vizinhos iguais o tempo todo — e dois bilhetes
+ * identicos encostados nao leem como acaso, leem como bug. A memoria curta
+ * (as ultimas `lembrar` escolhas) resolve isso sem viciar a distribuicao: no
+ * total, cada peca continua saindo o mesmo tanto; ela so nao sai duas vezes
+ * seguidas.
+ *
+ * O sorteio continua determinístico — sai do mesmo `jitter` semeado.
+ */
+function escolher(pool, jitter, memoria, lembrar = 3) {
+  let asset = jitter.pick(pool);
+
+  // Tres tentativas, e nao um laco: com uma pool pequena, insistir ate achar
+  // um inedito trava.
+  for (let i = 0; i < 3 && memoria.includes(asset); i += 1) {
+    asset = jitter.pick(pool);
+  }
+
+  memoria.push(asset);
+  if (memoria.length > lembrar) memoria.shift();
+  return asset;
+}
+
 function criarEntrada({ id, asset, x, y, w, jitter, depth }) {
   return {
     id,
@@ -78,6 +103,11 @@ export function generateFillPieces(fill, { portrait, tier = 'alta' }) {
   const cellW = (100 + fill.bleed * 2) / cols;
   const cellH = (100 + fill.bleed * 2) / rows;
 
+  // A memória do sorteio atravessa as duas passadas: o que importa é a
+  // vizinhança na tela, e a segunda passada cai justamente nos vãos da
+  // primeira.
+  const memoria = [];
+
   for (let pass = 0; pass < base.passes; pass += 1) {
     // A segunda passada nasce meia célula deslocada nos dois eixos.
     const shiftX = pass * cellW * 0.5;
@@ -85,7 +115,7 @@ export function generateFillPieces(fill, { portrait, tier = 'alta' }) {
 
     for (let row = 0; row < rows; row += 1) {
       for (let col = 0; col < cols; col += 1) {
-        const asset = jitter.pick(base.pool);
+        const asset = escolher(base.pool, jitter, memoria, 4);
         entries.push(
           criarEntrada({
             id: `base-${pass}-${row}-${col}`,
@@ -108,8 +138,10 @@ export function generateFillPieces(fill, { portrait, tier = 'alta' }) {
   const accent = fill.accent;
   const total = Math.min(portrait ? accent.portraitCount : accent.count, orcamento.accent);
 
+  const memoriaAcento = [];
+
   for (let i = 0; i < total; i += 1) {
-    const asset = jitter.pick(accent.pool);
+    const asset = escolher(accent.pool, jitter, memoriaAcento, 5);
     entries.push(
       criarEntrada({
         id: `acento-${i}`,
