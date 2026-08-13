@@ -15,6 +15,18 @@
  * O registro tolera ausencias de proposito: uma peca sem asset e apenas
  * ignorada com aviso em desenvolvimento. Assim a composicao pode ser editada
  * antes de a arte final existir.
+ *
+ * DUAS PROCEDENCIAS PARA A MESMA URL
+ *
+ * No laboratorio o caminho vem do proprio empacotador (`import.meta.glob`).
+ * Hospedado num tema de loja, nao pode vir: la o endereco de cada arquivo e
+ * decidido pela plataforma no momento de renderizar a pagina (com hash de
+ * versao proprio), e so o HTML o conhece. Entao ele chega pronto, por
+ * `window.TZ_PRELOADER.assets`.
+ *
+ * Quando esse mapa existe ele e a UNICA fonte: uma peca que nao esteja nele
+ * simplesmente nao existe naquele ambiente — melhor ausente (a composicao
+ * ignora) do que apontando para um endereco de outro projeto.
  */
 
 import manifesto from '../assets/collage/manifesto.json';
@@ -27,13 +39,26 @@ const bitmapModules = import.meta.glob('../assets/collage/*.webp', {
 
 const basename = (path) => path.split('/').pop().replace(/\.\w+$/, '');
 
+/** Mapa `nome -> URL` fornecido pelo hospedeiro, se houver. */
+const hospedeiro =
+  (typeof window !== 'undefined' && window.TZ_PRELOADER && window.TZ_PRELOADER.assets) || null;
+
 /** @type {Map<string, { src: string, w: number, h: number, ratio: number }>} */
 const registry = new Map();
 
-for (const [path, src] of Object.entries(bitmapModules)) {
-  const nome = basename(path);
+const anotar = (nome, src) => {
   const medida = manifesto[nome] ?? { w: 1, h: 1 };
   registry.set(nome, { src, w: medida.w, h: medida.h, ratio: medida.w / medida.h });
+};
+
+if (hospedeiro) {
+  for (const [nome, src] of Object.entries(hospedeiro)) {
+    if (src) anotar(nome, src);
+  }
+} else {
+  for (const [path, src] of Object.entries(bitmapModules)) {
+    anotar(basename(path), src);
+  }
 }
 
 /** Assets que existem de fato neste build. */

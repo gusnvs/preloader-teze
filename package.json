@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 4173",
-    "assets": "node scripts/build-assets.mjs"
+    "assets": "node scripts/build-assets.mjs",
+    "build:theme": "vite build --config vite.theme.config.js && node scripts/build-theme.mjs"
   },
   "dependencies": {
     "gsap": "^3.13.0",

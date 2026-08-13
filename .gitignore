@@ -1,5 +1,8 @@
 node_modules/
 dist/
+# Saida intermediaria do `npm run build:theme`. O que importa dela e copiado
+# para dentro do tema pelo `scripts/build-theme.mjs`.
+dist-theme/
 .vite/
 *.local
 .DS_Store
