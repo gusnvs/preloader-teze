@@ -498,14 +498,16 @@ export const TRAIL = {
   /**
    * Largura de cada pegada, em `--tz-unit`.
    *
-   * A pegada oficial e um adesivo amarelo recortado — opaco, e portanto
-   * visivel contra a parede de listras sem precisar ser grande. A versao
-   * anterior era tinta em `multiply` e precisava do dobro do tamanho para
-   * existir.
+   * Cresceu porque a parede cresceu. O adesivo amarelo e opaco e salta contra
+   * o creme do papel — mas contra cento e sessenta pecas, entre listras,
+   * carimbos e bilhetes, uma pegada pequena vira mais um detalhe no meio de
+   * muitos. O que se procura aqui nao e ver a pegada: e reconhecer que ALGUEM
+   * PASSOU, e isso precisa de escala.
    */
-  size: 6.2,
-  /** Afastamento lateral entre pe esquerdo e direito. */
-  stride: 3.4,
+  size: 8.6,
+  /** Afastamento lateral entre pe esquerdo e direito — acompanha o tamanho,
+   *  senao um pe pisa em cima do outro. */
+  stride: 4.6,
   /** Variacao angular por passo, em graus. */
   wobble: 8,
   /**
@@ -550,8 +552,8 @@ export const TRAIL = {
   ],
 
   portrait: {
-    size: 10,
-    stride: 5.2,
+    size: 13.5,
+    stride: 6.8,
   },
 };
 
