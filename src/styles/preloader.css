@@ -127,12 +127,10 @@
 .tz-preloader__trail {
   z-index: 60; /* as pegadas passam por cima do mural */
 
-  /* O blend vive na CAMADA, e nao em cada pegada.
-     `z-index` faz desta camada um contexto de empilhamento, entao uma
-     pegada que tentasse multiplicar por conta propria so encontraria as
-     outras pegadas como fundo — e apareceria com o retangulo branco do
-     arquivo. Multiplicando a camada inteira, a tinta encontra o mural. */
-  mix-blend-mode: multiply;
+  /* Sem `mix-blend-mode`. A pegada oficial e um adesivo recortado, opaco:
+     ela repousa SOBRE a colagem como qualquer outra peca. Multiplicar um
+     amarelo contra uma parede de listras vermelhas e xadrez azul so o
+     transformaria em barro. */
 }
 
 /* --- Peca ---------------------------------------------------------------- */
@@ -214,10 +212,11 @@
 .tz-print__media {
   width: 100%;
   transform-origin: 50% 50%;
+  /* Curta e baixa: a pegada esta COLADA no chao, nao pousada sobre ele. */
+  filter: drop-shadow(0 1px 1px rgba(60, 40, 28, 0.22));
 }
 
-.tz-print__media > img,
-.tz-print__media > svg {
+.tz-print__media > img {
   width: 100%;
   height: auto;
 }

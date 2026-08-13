@@ -483,42 +483,75 @@ export const COLLAGE = [
 ];
 
 /**
- * TRAJETORIA DAS PEGADAS
+ * TRAJETORIAS DAS PEGADAS
  *
- * Uma Bezier quadratica: o ponto de controle e o que deixa o caminho
- * "levemente torto". Reta seria mecanico; torto demais seria comico.
+ * Duas patas atravessam a cena, e nao uma. A segunda entra depois — tempo
+ * suficiente para a primeira ser vista como um caminho, e nao como metade de
+ * um par. Cada trilha e uma Bezier quadratica: o ponto de controle e o que
+ * deixa o caminho "levemente torto". Reta seria mecanico; torto demais seria
+ * comico.
+ *
+ * As coordenadas comecam e terminam FORA do quadro de proposito: a pata nao
+ * nasce nem morre na tela, ela atravessa.
  */
 export const TRAIL = {
-  from: { x: -8, y: 88 },
-  control: { x: 40, y: 56 },
-  to: { x: 110, y: 42 },
   /**
    * Largura de cada pegada, em `--tz-unit`.
    *
-   * Cresceu junto com a arte oficial: sobre a parede de listras e xadrez, a
-   * pegada discreta da versao anterior simplesmente sumia. A tinta e um
-   * carimbo suave em `multiply` — para ler contra um fundo agitado, ela
-   * precisa de tamanho, nao de opacidade.
+   * A pegada oficial e um adesivo amarelo recortado — opaco, e portanto
+   * visivel contra a parede de listras sem precisar ser grande. A versao
+   * anterior era tinta em `multiply` e precisava do dobro do tamanho para
+   * existir.
    */
-  size: 5.4,
+  size: 6.2,
   /** Afastamento lateral entre pe esquerdo e direito. */
-  stride: 3.2,
+  stride: 3.4,
   /** Variacao angular por passo, em graus. */
-  wobble: 9,
+  wobble: 8,
   /**
-   * Correcao de orientacao. Na arte, os dedos da pegada apontam para BAIXO
-   * (sul = +90° no sistema de tela, com y crescendo para baixo), enquanto a
-   * tangente da curva e medida a partir do leste. Subtrair 90° faz os dedos
-   * apontarem para onde a pata estava indo.
+   * Correcao de orientacao. Na arte oficial os dedos apontam para CIMA
+   * (norte = -90° no sistema de tela, com y crescendo para baixo), enquanto
+   * a tangente da curva e medida a partir do leste. Somar 90° faz os dedos
+   * apontarem para onde a pata esta indo.
    */
-  headingOffset: -90,
+  headingOffset: 90,
+
+  /**
+   * Os dois caminhos.
+   *
+   *   delay  quando esta trilha comeca, em segundos, contados do inicio da
+   *          cena. O intervalo e o que separa "duas patas" de "uma pata com
+   *          o dobro de pegadas".
+   *   steps  quantos passos ate atravessar.
+   */
+  paths: [
+    // Da esquerda, descendo para o rodape.
+    {
+      id: 'esquerda',
+      delay: 0,
+      steps: 9,
+      from: { x: -8, y: 34 },
+      control: { x: 16, y: 62 },
+      to: { x: 36, y: 110 },
+      portrait: { from: { x: -10, y: 26 }, control: { x: 20, y: 58 }, to: { x: 42, y: 112 } },
+    },
+    // Do topo, saindo pela direita. O ponto de controle fica a ESQUERDA da
+    // reta: a pata desce encostando no miolo da cena antes de sair — sem
+    // isso ela raspa a borda e o caminho vira um detalhe de canto.
+    {
+      id: 'direita',
+      delay: 0.95,
+      steps: 8,
+      from: { x: 80, y: -8 },
+      control: { x: 76, y: 28 },
+      to: { x: 108, y: 56 },
+      portrait: { from: { x: 74, y: -8 }, control: { x: 70, y: 32 }, to: { x: 112, y: 66 } },
+    },
+  ],
 
   portrait: {
-    from: { x: -10, y: 92 },
-    control: { x: 48, y: 62 },
-    to: { x: 112, y: 28 },
-    size: 9,
-    stride: 5,
+    size: 10,
+    stride: 5.2,
   },
 };
 

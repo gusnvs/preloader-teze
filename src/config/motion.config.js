@@ -22,9 +22,16 @@ export const MOTION = {
    * Repetir a versao longa a cada clique cansa; encurtar mantem o encanto.
    */
   variants: {
-    full: { timeScale: 1, trailSteps: 11 },
-    express: { timeScale: 1.55, trailSteps: 11 },
+    full: { timeScale: 1 },
+    express: { timeScale: 1.55 },
   },
+
+  /**
+   * Fator sobre o numero de passos de cada trilha (ver `TRAIL.paths`).
+   * Vive aqui, e nao nas variantes, porque as pegadas sao construidas UMA vez
+   * junto com o palco — e o palco nao sabe qual variante vai rodar.
+   */
+  trailScale: 1,
 
   /**
    * CENA 1 — silencio visual: as tres primeiras figurinhas sao coladas.
@@ -138,16 +145,23 @@ export const MOTION = {
     settleScale: 1.012,
   },
 
-  /** CENA 4 — as pegadas atravessam a cena. */
+  /**
+   * CENA 4 — as duas patas atravessam a cena.
+   *
+   * O ritmo aqui e o de um passo, nao o de uma animacao: `stagger` e o tempo
+   * entre uma pata e outra tocarem o chao. Abaixo de ~0,12 s vira corrida —
+   * e o que se le e um rastro sendo desenhado, nao alguem caminhando.
+   */
   footsteps: {
-    pressDuration: 0.24, // impacto da pegada
-    stagger: 0.1, // cadencia do passo
+    pressDuration: 0.3, // impacto da pegada
+    stagger: 0.17, // cadencia do passo
     ease: 'tz.stamp',
-    scaleFrom: 1.55,
-    opacity: 0.74,
-    /** A tinta seca: cada pegada apaga depois de N passos. */
-    fadeDuration: 0.75, // a cauda se sobrepoe a cena 6, de proposito
-    fadeAfter: 2,
+    /** Chega um pouco maior e assenta. Discreto: e um pe, nao um carimbo. */
+    scaleFrom: 1.3,
+    opacity: 0.95,
+    /** A pegada apaga depois de N passos — o rastro nunca esta inteiro. */
+    fadeDuration: 0.82, // a cauda se sobrepoe a cena 6, de proposito
+    fadeAfter: 3,
     fadeEase: 'power1.inOut',
   },
 
@@ -248,13 +262,19 @@ export const MOTION = {
    */
   choreography: [
     { scene: 'awaken', at: 0 },
-    { scene: 'gather', at: '>-0.55' },
+    // A quarta figurinha entra enquanto a terceira ainda assenta: a mao nao
+    // espera o papel parar para pegar a proxima.
+    { scene: 'gather', at: '>-1' },
     { scene: 'mural', at: '>-0.78' },
     { scene: 'footsteps', at: '>-0.85' },
-    // A brisa entra por cima da cauda de secagem das pegadas: o rastro
-    // ainda esta desaparecendo quando o vento comeca. Duas coisas ao mesmo
-    // tempo, como no mundo.
-    { scene: 'breeze', at: '>-0.70' },
+    // A brisa entra por cima da cauda de secagem das pegadas: o rastro ainda
+    // esta desaparecendo quando o vento comeca. Duas coisas ao mesmo tempo,
+    // como no mundo.
+    //
+    // Nao da para sobrepor muito mais: a brisa e a reacao as pegadas animam a
+    // MESMA camada (`__media`), e com `overwrite: auto` a brisa arrancaria do
+    // lugar qualquer peca ainda tremendo. O limite e a ultima reacao.
+    { scene: 'breeze', at: '>-0.85' },
     { scene: 'fall', at: '>-0.75' },
     // Ancorada no INICIO da queda (`<`), e nao no fim: o grao e a vinheta
     // precisam sumir enquanto o papel desce. Preso ao fim, qualquer ajuste

@@ -161,7 +161,7 @@ export class Preloader {
   #mountStage() {
     this.#orientation = isPortrait();
     this.#stageData = buildPreloaderStage(this.#root, {
-      trailSteps: MOTION.variants.full.trailSteps,
+      trailSteps: MOTION.trailScale,
       // A preferencia e lida na montagem porque ela decide a ESTRUTURA: sem
       // movimento, a figurinha que cola nem chega a criar as suas faixas.
       reduced: prefersReducedMotion(),

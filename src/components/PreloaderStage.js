@@ -17,9 +17,17 @@ import { COLLAGE, TRAIL, FILL } from '../config/collage.config.js';
 import { isPortrait } from '../utils/viewport.js';
 import { resolveTier } from '../utils/deviceTier.js';
 
-/** Resolve a configuracao da trilha para a orientacao atual. */
+/**
+ * Resolve a configuracao das trilhas para a orientacao atual.
+ * Em retrato mudam as medidas (comuns) e o traçado de CADA caminho.
+ */
 function resolveTrail(portrait) {
-  return portrait ? { ...TRAIL, ...TRAIL.portrait } : TRAIL;
+  if (!portrait) return TRAIL;
+  return {
+    ...TRAIL,
+    ...TRAIL.portrait,
+    paths: TRAIL.paths.map((path) => ({ ...path, ...(path.portrait ?? {}) })),
+  };
 }
 
 /**
@@ -60,7 +68,7 @@ export function buildPreloaderStage(root, { trailSteps = 13, reduced = false } =
 
   // --- Pegadas -----------------------------------------------------------
   const { nodes: printNodes, prints } = createFootprintTrail(resolveTrail(portrait), {
-    steps: trailSteps,
+    stepScale: trailSteps,
   });
   printNodes.forEach((node) => trailLayer.appendChild(node));
 

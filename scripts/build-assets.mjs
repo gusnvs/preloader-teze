@@ -106,16 +106,13 @@ const RECEITAS = {
   XADREZ_02: { nome: 'textura-papel', width: 900, trim: false, quality: 58 },
 
   /**
-   * A PEGADA — a unica peca que nao vem da arte oficial.
+   * A PEGADA.
    *
-   * O rastro da pata e narrativa da animacao, nao da marca: a cartela
-   * oficial nao traz uma pegada, entao esta continua sendo a desenhada para
-   * o laboratorio. E tambem a unica em fundo BRANCO: ela e tinta carimbada
-   * no papel, aplicada com `mix-blend-mode: multiply` pela camada do rastro
-   * inteira (ver `preloader.css`), e recortar o alpha dela apagaria
-   * justamente a suavidade da borda da tinta.
+   * Recortada como todas as outras — e isso mudou a cena inteira: a versao
+   * anterior era tinta em fundo branco, aplicada em `multiply`, e sumia
+   * contra a parede de listras. Um adesivo amarelo opaco nao suma.
    */
-  pegada: { nome: 'pegada', width: 260, fundo: '#ffffff', quality: 88 },
+  pata_pegada: { nome: 'pegada', width: 420, quality: 88 },
 };
 
 /** Arquivos da pasta oficial que nao viram asset. */

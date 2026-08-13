@@ -7,8 +7,8 @@ Três leituras da mesma história, todas saindo do mesmo roteiro:
 
 | Variante              | Quando                          | Duração |
 | --------------------- | ------------------------------- | ------- |
-| `full`                | primeira visita                 | 6.9 s   |
-| `express`             | cada navegação seguinte         | 4.5 s   |
+| `full`                | primeira visita                 | 8.3 s   |
+| `express`             | cada navegação seguinte         | 5.3 s   |
 | `prefers-reduced-motion` | por decisão do sistema       | 2.0 s   |
 
 Repetir a versão longa a cada clique cansa; encurtar mantém o encanto. A
@@ -49,7 +49,7 @@ e a linha do tempo principal só sabe a ordem em que entram.
 | 1 | Despertar     | `scene-01-despertar.js`     | O papel aparece antes de tudo. **Três figurinhas são coladas**, uma a uma. |
 | 2 | Reunião       | `scene-02-reuniao.js`       | Mais três, com a mão já solta. A colagem ganha corpo.                 |
 | 3 | A chuva       | `scene-03-mural.js`         | **Os adesivos caem e empilham** até cobrir a tela. Física, não tween. |
-| 4 | Rastro        | `scene-04-rastro.js`        | Pegadas atravessam a tela numa curva torta, alternando os pés.        |
+| 4 | Rastro        | `scene-04-rastro.js`        | **Duas patas** atravessam a tela em curvas tortas, uma depois da outra. |
 | 5 | Reação        | `scene-05-reacao.js`        | As peças perto de cada pegada estremecem e voltam.                    |
 | 6 | Brisa         | `scene-06-brisa.js`         | O ar muda. Os papéis descolam da superfície.                          |
 | 7 | A queda       | `scene-07-queda.js`         | **Tudo despenca.** O papel vai primeiro; os adesivos tombam atrás.    |
@@ -249,7 +249,31 @@ A semente é fixa (`FILL.seed`): a bagunça é sempre a mesma e, portanto,
 ajustável pelo olho — a única forma de julgar uma colagem.
 
 Verificado: no quadro em que a primeira pegada aparece, **todas as peças
-estão completas**. Os adesivos chegam primeiro; a pata passa depois.
+estão completas**. Os adesivos chegam primeiro; as patas passam depois.
+
+### As duas patas
+
+São dois caminhos, não um (`TRAIL.paths`), e a segunda pata começa **quase um
+segundo depois** da primeira. O intervalo é o que separa "duas patas" de "uma
+pata com o dobro de pegadas": tempo de ler o primeiro caminho como um caminho
+antes de o segundo existir.
+
+Cada pegada carrega o `delay` da sua trilha, então a cena que as anima não
+precisa saber que existe mais de um caminho — ela lê o instante de cada passo
+e obedece. Acrescentar uma terceira pata é escrever um objeto em `paths`.
+
+A cadência (`footsteps.stagger`) é o tempo entre uma pata e outra tocarem o
+chão, e é o número que decide tudo: abaixo de ~0,12 s vira corrida, e o que
+se lê é um rastro sendo desenhado, não alguém caminhando.
+
+A pegada oficial é um **adesivo recortado amarelo**, e isso mudou a cena: a
+versão anterior era tinta em fundo branco aplicada em `multiply`, e sumia
+contra a parede de listras. Um amarelo opaco não some — e multiplicá-lo
+contra listras vermelhas e xadrez azul só o transformaria em barro. A camada
+do rastro perdeu o `mix-blend-mode` junto.
+
+A última pegada de cada trilha espera um pouco mais para secar: é ela que
+fecha o caminho, e sumir no mesmo ritmo das outras cortaria a frase no meio.
 
 ### A saída: tudo desce
 
